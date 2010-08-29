@@ -210,11 +210,12 @@
 			}
 			#endif
 			
-			static inline void USB_Device_SetDeviceAddress(const uint8_t Address) ATTR_ALWAYS_INLINE;
-			static inline void USB_Device_SetDeviceAddress(const uint8_t Address)
-			{
-				UDADDR = ((1 << ADDEN) | (Address & 0x7F));
-			}			
+//			static inline void USB_Device_SetDeviceAddress(const uint8_t Address) ATTR_ALWAYS_INLINE;
+//			static inline void USB_Device_SetDeviceAddress(const uint8_t Address)
+//			{
+//				UDADDR = ((1 << ADDEN) | (Address & 0x7F));
+//			}
+			void USB_Device_SetDeviceAddress(uint8_t Address);
 	#endif
 
 #endif
