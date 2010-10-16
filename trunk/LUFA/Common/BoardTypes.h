@@ -110,6 +110,12 @@
             /** Selects the BLACKCAT specific board drivers, including the Button and LEDs drivers. */
             #define BOARD_BLACKCAT      15
 
+	    /** Selects the MAXIMUS specific board drivers, including the Button and LED drivers. */
+            #define BOARD_MAXIMUS        16
+
+	    /** Selects the MINIMUS specific board drivers, including the Button and LED drivers. */
+            #define BOARD_MINIMUS        17
+
             #if !defined(__DOXYGEN__)
                 #define BOARD_          BOARD_NONE
                 

@@ -115,6 +115,10 @@
         #include "JMDBU2/LEDs.h"
     #elif (BOARD == BOARD_USER)
         #include "Board/LEDs.h"
+    #elif (BOARD == BOARD_MINIMUS)
+        #include "MINIMUS/LEDs.h"
+    #elif (BOARD == BOARD_MAXIMUS)
+        #include "MAXIMUS/LEDs.h"
     #endif
     
     #if !defined(LEDS_LED1)
