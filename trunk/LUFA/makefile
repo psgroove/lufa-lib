@@ -1,7 +1,7 @@
 #
 #             LUFA Library
 #     Copyright (C) Dean Camera, 2010.
-#              
+#
 #  dean [at] fourwalledcubicle [dot] com
 #      www.fourwalledcubicle.com
 #
@@ -53,16 +53,16 @@ LUFA_SRC_SCHEDULER    = $(LUFA_ROOT_PATH)/Scheduler/Scheduler.c
 
 # Check to see if the LUFA_PATH variable has not been set (the makefile is not being included from a project makefile)
 ifeq ($(origin LUFA_PATH), undefined)
-   LUFA_SRC_ALL_FILES  = $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)       \
-                         $(LUFA_SRC_TEMPERATURE) $(LUFA_SRC_SERIAL) \
-                         $(LUFA_SRC_SERIALSTREAM) $(LUFA_SRC_TWI)   \
-                         $(LUFA_SRC_SCHEDULER)
+   LUFA_SRC_ALL_FILES = $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)       \
+                        $(LUFA_SRC_TEMPERATURE) $(LUFA_SRC_SERIAL) \
+                        $(LUFA_SRC_SERIALSTREAM) $(LUFA_SRC_TWI)   \
+                        $(LUFA_SRC_SCHEDULER)
 
    all:
 
    clean:
 	rm -f $(LUFA_SRC_ALL_FILES:%.c=%.o)
-	
+
    clean_list:
 
    doxygen:

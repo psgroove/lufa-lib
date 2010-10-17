@@ -1,7 +1,7 @@
 /*
              LUFA Library
      Copyright (C) Dean Camera, 2010.
-              
+
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 */
@@ -9,13 +9,13 @@
 /*
   Copyright 2010  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
-  Permission to use, copy, modify, distribute, and sell this 
+  Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
-  without fee, provided that the above copyright notice appear in 
+  without fee, provided that the above copyright notice appear in
   all copies and that both that the copyright notice and this
-  permission notice and warranty disclaimer appear in supporting 
-  documentation, and that the name of the author not be used in 
-  advertising or publicity pertaining to distribution of the 
+  permission notice and warranty disclaimer appear in supporting
+  documentation, and that the name of the author not be used in
+  advertising or publicity pertaining to distribution of the
   software without specific, written prior permission.
 
   The author disclaim all warranties with regard to this
@@ -43,13 +43,13 @@
  *
  *  Functions, macros, variables, enums and types related to data reading and writing from and to endpoints.
  */
- 
+
 /** \ingroup Group_EndpointRW
  *  @defgroup Group_EndpointPrimitiveRW Read/Write of Primitive Data Types
  *
  *  Functions, macros, variables, enums and types related to data reading and writing of primitive data types
  *  from and to endpoints.
- */ 
+ */
 
 /** \ingroup Group_EndpointManagement
  *  @defgroup Group_EndpointPacketManagement Endpoint Packet Management
@@ -77,7 +77,7 @@
 		#include "../../../Common/Common.h"
 		#include "../HighLevel/USBTask.h"
 		#include "USBInterrupt.h"
-		
+
 	/* Enable C linkage for C++ Compilers: */
 		#if defined(__cplusplus)
 			extern "C" {
@@ -93,26 +93,30 @@
 		/* Macros: */
 			#define _ENDPOINT_GET_MAXSIZE(EPIndex)         _ENDPOINT_GET_MAXSIZE2(ENDPOINT_DETAILS_EP ## EPIndex)
 			#define _ENDPOINT_GET_MAXSIZE2(EPDetails)      _ENDPOINT_GET_MAXSIZE3(EPDetails)
-			#define _ENDPOINT_GET_MAXSIZE3(MaxSize, DB)    (MaxSize)
+			#define _ENDPOINT_GET_MAXSIZE3(MaxSize, Banks) (MaxSize)
 
-			#define _ENDPOINT_GET_DOUBLEBANK(EPIndex)      _ENDPOINT_GET_DOUBLEBANK2(ENDPOINT_DETAILS_EP ## EPIndex)
-			#define _ENDPOINT_GET_DOUBLEBANK2(EPDetails)   _ENDPOINT_GET_DOUBLEBANK3(EPDetails)
-			#define _ENDPOINT_GET_DOUBLEBANK3(MaxSize, DB) (DB)
-			
+			#define _ENDPOINT_GET_BANKS(EPIndex)           _ENDPOINT_GET_BANKS2(ENDPOINT_DETAILS_EP ## EPIndex)
+			#define _ENDPOINT_GET_BANKS2(EPDetails)        _ENDPOINT_GET_BANKS3(EPDetails)
+			#define _ENDPOINT_GET_BANKS3(MaxSize, Banks)   (Banks)
+
 			#if defined(USB_SERIES_4_AVR) || defined(USB_SERIES_6_AVR) || defined(USB_SERIES_7_AVR)
-				#define ENDPOINT_DETAILS_EP0               64,  true
-				#define ENDPOINT_DETAILS_EP1               256, true
-				#define ENDPOINT_DETAILS_EP2               64,  true
-				#define ENDPOINT_DETAILS_EP3               64,  true
-				#define ENDPOINT_DETAILS_EP4               64,  true
-				#define ENDPOINT_DETAILS_EP5               64,  true
-				#define ENDPOINT_DETAILS_EP6               64,  true
+				#define ENDPOINT_DETAILS_MAXEP             7
+
+				#define ENDPOINT_DETAILS_EP0               64,  2
+				#define ENDPOINT_DETAILS_EP1               256, 2
+				#define ENDPOINT_DETAILS_EP2               64,  2
+				#define ENDPOINT_DETAILS_EP3               64,  2
+				#define ENDPOINT_DETAILS_EP4               64,  2
+				#define ENDPOINT_DETAILS_EP5               64,  2
+				#define ENDPOINT_DETAILS_EP6               64,  2
 			#else
-				#define ENDPOINT_DETAILS_EP0               64,  true
-				#define ENDPOINT_DETAILS_EP1               64,  false
-				#define ENDPOINT_DETAILS_EP2               64,  false
-				#define ENDPOINT_DETAILS_EP3               64,  true
-				#define ENDPOINT_DETAILS_EP4               64,  true			
+				#define ENDPOINT_DETAILS_MAXEP             5
+
+				#define ENDPOINT_DETAILS_EP0               64,  2
+				#define ENDPOINT_DETAILS_EP1               64,  1
+				#define ENDPOINT_DETAILS_EP2               64,  1
+				#define ENDPOINT_DETAILS_EP3               64,  2
+				#define ENDPOINT_DETAILS_EP4               64,  2
 			#endif
 
 		/* Inline Functions: */
@@ -122,13 +126,13 @@
 			{
 				uint8_t  MaskVal    = 0;
 				uint16_t CheckBytes = 8;
-				
+
 				while (CheckBytes < Bytes)
 				{
 					MaskVal++;
 					CheckBytes <<= 1;
 				}
-				
+
 				return (MaskVal << EPSIZE0);
 			}
 
@@ -139,84 +143,80 @@
 			                                    const uint8_t UECFG1XData);
 
 	#endif
-	
+
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			/** Endpoint data direction mask for \ref Endpoint_ConfigureEndpoint(). This indicates that the endpoint
 			 *  should be initialized in the OUT direction - i.e. data flows from host to device.
 			 */
-			#define ENDPOINT_DIR_OUT                      (0 << EPDIR)
+			#define ENDPOINT_DIR_OUT                        (0 << EPDIR)
 
 			/** Endpoint data direction mask for \ref Endpoint_ConfigureEndpoint(). This indicates that the endpoint
 			 *  should be initialized in the IN direction - i.e. data flows from device to host.
 			 */
-			#define ENDPOINT_DIR_IN                       (1 << EPDIR)
+			#define ENDPOINT_DIR_IN                         (1 << EPDIR)
 
 			/** Mask for the bank mode selection for the \ref Endpoint_ConfigureEndpoint() macro. This indicates
 			 *  that the endpoint should have one single bank, which requires less USB FIFO memory but results
 			 *  in slower transfers as only one USB device (the AVR or the host) can access the endpoint's
 			 *  bank at the one time.
 			 */
-			#define ENDPOINT_BANK_SINGLE                  (0 << EPBK0)
+			#define ENDPOINT_BANK_SINGLE                    (0 << EPBK0)
 
 			/** Mask for the bank mode selection for the \ref Endpoint_ConfigureEndpoint() macro. This indicates
 			 *  that the endpoint should have two banks, which requires more USB FIFO memory but results
 			 *  in faster transfers as one USB device (the AVR or the host) can access one bank while the other
 			 *  accesses the second bank.
 			 */
-			#define ENDPOINT_BANK_DOUBLE                  (1 << EPBK0)
-			
+			#define ENDPOINT_BANK_DOUBLE                    (1 << EPBK0)
+
 			/** Endpoint address for the default control endpoint, which always resides in address 0. This is
 			 *  defined for convenience to give more readable code when used with the endpoint macros.
 			 */
-			#define ENDPOINT_CONTROLEP                    0
+			#define ENDPOINT_CONTROLEP                      0
 
 			#if (!defined(FIXED_CONTROL_ENDPOINT_SIZE) || defined(__DOXYGEN__))
-				/** Default size of the default control endpoint's bank, until altered by the control endpoint bank size 
+				/** Default size of the default control endpoint's bank, until altered by the control endpoint bank size
 				 *  value in the device descriptor. Not available if the FIXED_CONTROL_ENDPOINT_SIZE token is defined.
 				 */
-				#define ENDPOINT_CONTROLEP_DEFAULT_SIZE   8
+				#define ENDPOINT_CONTROLEP_DEFAULT_SIZE     8
 			#endif
-			
+
 			/** Endpoint number mask, for masking against endpoint addresses to retrieve the endpoint's
 			 *  numerical address in the device.
 			 */
-			#define ENDPOINT_EPNUM_MASK                   0x07
+			#define ENDPOINT_EPNUM_MASK                     0x07
 
 			/** Endpoint direction mask, for masking against endpoint addresses to retrieve the endpoint's
 			 *  direction for comparing with the ENDPOINT_DESCRIPTOR_DIR_* masks.
 			 */
-			#define ENDPOINT_EPDIR_MASK                   0x80
+			#define ENDPOINT_EPDIR_MASK                     0x80
 
 			/** Endpoint bank size mask, for masking against endpoint addresses to retrieve the endpoint's
 			 *  bank size in the device.
 			 */
-			#define ENDPOINT_EPSIZE_MASK                  0x7F
-			
+			#define ENDPOINT_EPSIZE_MASK                    0x7F
+
 			/** Maximum size in bytes of a given endpoint.
 			 *
-			 *  \param[in] n  Endpoint number, a value between 0 and (ENDPOINT_TOTAL_ENDPOINTS - 1)
-			 */				
-			#define ENDPOINT_MAX_SIZE(n)                  _ENDPOINT_GET_MAXSIZE(n)
+			 *  \param[in] EPIndex  Endpoint number, a value between 0 and (ENDPOINT_TOTAL_ENDPOINTS - 1)
+			 */
+			#define ENDPOINT_MAX_SIZE(EPIndex)              _ENDPOINT_GET_MAXSIZE(EPIndex)
 
-			/** Indicates if the given endpoint supports double banking.
+			/** Indicates the total number of banks supported by the given endpoint.
 			 *
-			 *  \param[in] n  Endpoint number, a value between 0 and (ENDPOINT_TOTAL_ENDPOINTS - 1)
-			 */				
-			#define ENDPOINT_DOUBLEBANK_SUPPORTED(n)      _ENDPOINT_GET_DOUBLEBANK(n)
+			 *  \param[in] EPIndex  Endpoint number, a value between 0 and (ENDPOINT_TOTAL_ENDPOINTS - 1)
+			 */
+			#define ENDPOINT_BANKS_SUPPORTED(EPIndex)       _ENDPOINT_GET_BANKS(EPIndex)
 
-			#if !defined(CONTROL_ONLY_DEVICE)
-				#if defined(USB_SERIES_4_AVR) || defined(USB_SERIES_6_AVR) || defined(USB_SERIES_7_AVR) || defined(__DOXYGEN__)
-					/** Total number of endpoints (including the default control endpoint at address 0) which may
-					 *  be used in the device. Different USB AVR models support different amounts of endpoints,
-					 *  this value reflects the maximum number of endpoints for the currently selected AVR model.
-					 */
-					#define ENDPOINT_TOTAL_ENDPOINTS      7
-				#else
-					#define ENDPOINT_TOTAL_ENDPOINTS      5
-				#endif
+			#if !defined(CONTROL_ONLY_DEVICE) || defined(__DOXYGEN__)
+				/** Total number of endpoints (including the default control endpoint at address 0) which may
+				 *  be used in the device. Different USB AVR models support different amounts of endpoints,
+				 *  this value reflects the maximum number of endpoints for the currently selected AVR model.
+				 */
+				#define ENDPOINT_TOTAL_ENDPOINTS            ENDPOINT_DETAILS_MAXEP
 			#else
-				#define ENDPOINT_TOTAL_ENDPOINTS          1
+				#define ENDPOINT_TOTAL_ENDPOINTS            1
 			#endif
 
 		/* Enums: */
@@ -243,7 +243,7 @@
 				                                                 */
 			};
 
-		/* Inline Functions: */			
+		/* Inline Functions: */
 			/** Configures the specified endpoint number with the given endpoint type, direction, bank size
 			 *  and banking mode. Once configured, the endpoint may be read from or written to, depending
 			 *  on its direction.
@@ -267,11 +267,14 @@
 			 *                        More banks uses more USB DPRAM, but offers better performance. Isochronous type
 			 *                        endpoints <b>must</b> have at least two banks.
 			 *
+			 *  \note Endpoints <b>must</b> be configured in ascending order, or bank corruption will occur.
+			 *        \n\n
+			 *
 			 *  \note Certain models of USB AVR's endpoints may have different maximum packet sizes based on the endpoint's
 			 *        index - refer to the chosen USB AVR's datasheet to determine the maximum bank size for each endpoint.
 			 *        \n\n
 			 *
-			 *  \note The default control endpoint should not be manually configured by the user application, as 
+			 *  \note The default control endpoint should not be manually configured by the user application, as
 			 *        it is automatically configured by the library internally.
 			 *        \n\n
 			 *
@@ -315,7 +318,7 @@
 					return UEBCLX;
 				#endif
 			}
-		
+
 			/** Get the endpoint address of the currently selected endpoint. This is typically used to save
 			 *  the currently selected endpoint number so that it can be restored after another endpoint has
 			 *  been manipulated.
@@ -331,7 +334,7 @@
 					return ENDPOINT_CONTROLEP;
 				#endif
 			}
-			
+
 			/** Selects the given endpoint number. If the address from the device descriptors is used, the
 			 *  value should be masked with the \ref ENDPOINT_EPNUM_MASK constant to extract only the endpoint
 			 *  number (and discarding the endpoint direction bit).
@@ -346,9 +349,9 @@
 			{
 				#if !defined(CONTROL_ONLY_DEVICE)
 					UENUM = EndpointNumber;
-				#endif			
+				#endif
 			}
-			
+
 			/** Resets the endpoint bank FIFO. This clears all the endpoint banks and resets the USB controller's
 			 *  In and Out pointers to the bank's contents.
 			 *
@@ -360,7 +363,7 @@
 				UERST = (1 << EndpointNumber);
 				UERST = 0;
 			}
-			
+
 			/** Enables the currently selected endpoint so that data can be sent and received through it to
 			 *  and from a host.
 			 *
@@ -380,7 +383,7 @@
 			{
 				UECONX &= ~(1 << EPEN);
 			}
-			
+
 			/** Determines if the currently selected endpoint is enabled, but not necessarily configured.
 			 *
 			 * \return Boolean True if the currently selected endpoint is enabled, false otherwise.
@@ -390,7 +393,7 @@
 			{
 				return ((UECONX & (1 << EPEN)) ? true : false);
 			}
-			
+
 			/** Determines if the currently selected endpoint may be read from (if data is waiting in the endpoint
 			 *  bank and the endpoint is an OUT direction, or if the bank is not yet full if the endpoint is an IN
 			 *  direction). This function will return false if an error has occurred in the endpoint, if the endpoint
@@ -406,7 +409,7 @@
 			{
 				return ((UEINTX & (1 << RWAL)) ? true : false);
 			}
-			
+
 			/** Determines if the currently selected endpoint is configured.
 			 *
 			 *  \return Boolean true if the currently selected endpoint has been configured, false otherwise.
@@ -416,7 +419,7 @@
 			{
 				return ((UESTA0X & (1 << CFGOK)) ? true : false);
 			}
-			
+
 			/** Returns a mask indicating which INTERRUPT type endpoints have interrupted - i.e. their
 			 *  interrupt duration has elapsed. Which endpoints have interrupted can be determined by
 			 *  masking the return value against (1 << {Endpoint Number}).
@@ -428,7 +431,7 @@
 			{
 				return UEINT;
 			}
-			
+
 			/** Determines if the specified endpoint number has interrupted (valid only for INTERRUPT type
 			 *  endpoints).
 			 *
@@ -441,8 +444,8 @@
 			{
 				return ((UEINT & (1 << EndpointNumber)) ? true : false);
 			}
-			
-			/** Determines if the selected IN endpoint is ready for a new packet.
+
+			/** Determines if the selected IN endpoint is ready for a new packet to be sent to the host.
 			 *
 			 *  \ingroup Group_EndpointPacketManagement
 			 *
@@ -451,10 +454,10 @@
 			static inline bool Endpoint_IsINReady(void) ATTR_WARN_UNUSED_RESULT ATTR_ALWAYS_INLINE;
 			static inline bool Endpoint_IsINReady(void)
 			{
-				return ((UEINTX & (1 << TXINI))  ? true : false);
+				return ((UEINTX & (1 << TXINI)) ? true : false);
 			}
-			
-			/** Determines if the selected OUT endpoint has received new packet.
+
+			/** Determines if the selected OUT endpoint has received new packet from the host.
 			 *
 			 *  \ingroup Group_EndpointPacketManagement
 			 *
@@ -465,7 +468,7 @@
 			{
 				return ((UEINTX & (1 << RXOUTI)) ? true : false);
 			}
-			
+
 			/** Determines if the current CONTROL type endpoint has received a SETUP packet.
 			 *
 			 *  \ingroup Group_EndpointPacketManagement
@@ -477,20 +480,20 @@
 			{
 				return ((UEINTX & (1 << RXSTPI)) ? true : false);
 			}
-			
+
 			/** Clears a received SETUP packet on the currently selected CONTROL type endpoint, freeing up the
 			 *  endpoint for the next packet.
 			 *
 			 *  \ingroup Group_EndpointPacketManagement
 			 *
-			 *  \note This is not applicable for non CONTROL type endpoints. 
+			 *  \note This is not applicable for non CONTROL type endpoints.
 			 */
 			static inline void Endpoint_ClearSETUP(void) ATTR_ALWAYS_INLINE;
 			static inline void Endpoint_ClearSETUP(void)
 			{
 				UEINTX &= ~(1 << RXSTPI);
 			}
-			
+
 			/** Sends an IN packet to the host on the currently selected endpoint, freeing up the endpoint for the
 			 *  next packet and switching to the alternative endpoint bank if double banked.
 			 *
@@ -505,7 +508,7 @@
 					UEINTX &= ~(1 << TXINI);
 				#endif
 			}
-			
+
 			/** Acknowledges an OUT packet to the host on the currently selected endpoint, freeing up the endpoint
 			 *  for the next packet and switching to the alternative endpoint bank if double banked.
 			 *
@@ -517,10 +520,10 @@
 				#if !defined(CONTROL_ONLY_DEVICE)
 					UEINTX &= ~((1 << RXOUTI) | (1 << FIFOCON));
 				#else
-					UEINTX &= ~(1 << RXOUTI);	
+					UEINTX &= ~(1 << RXOUTI);
 				#endif
 			}
-			
+
 			/** Stalls the current endpoint, indicating to the host that a logical problem occurred with the
 			 *  indicated endpoint and that the current transfer sequence should be aborted. This provides a
 			 *  way for devices to indicate invalid commands to the host so that the current transfer can be
@@ -537,7 +540,7 @@
 			{
 				UECONX |= (1 << STALLRQ);
 			}
-			
+
 			/** Clears the STALL condition on the currently selected endpoint.
 			 *
 			 *  \ingroup Group_EndpointPacketManagement
@@ -547,7 +550,7 @@
 			{
 				UECONX |= (1 << STALLRQC);
 			}
-			
+
 			/** Determines if the currently selected endpoint is stalled, false otherwise.
 			 *
 			 *  \ingroup Group_EndpointPacketManagement
@@ -559,14 +562,14 @@
 			{
 				return ((UECONX & (1 << STALLRQ)) ? true : false);
 			}
-			
+
 			/** Resets the data toggle of the currently selected endpoint. */
 			static inline void Endpoint_ResetDataToggle(void) ATTR_ALWAYS_INLINE;
 			static inline void Endpoint_ResetDataToggle(void)
 			{
 				UECONX |= (1 << RSTDT);
 			}
-			
+
 			/** Determines the currently selected endpoint's direction.
 			 *
 			 *  \return The currently selected endpoint's direction, as a ENDPOINT_DIR_* mask.
@@ -619,10 +622,10 @@
 			static inline void Endpoint_Discard_Byte(void)
 			{
 				uint8_t Dummy;
-				
+
 				Dummy = UEDATX;
 			}
-			
+
 			/** Reads two bytes from the currently selected endpoint's bank in little endian format, for OUT
 			 *  direction endpoints.
 			 *
@@ -638,10 +641,10 @@
 					uint16_t Word;
 					uint8_t  Bytes[2];
 				} Data;
-				
+
 				Data.Bytes[0] = UEDATX;
 				Data.Bytes[1] = UEDATX;
-			
+
 				return Data.Word;
 			}
 
@@ -660,10 +663,10 @@
 					uint16_t Word;
 					uint8_t  Bytes[2];
 				} Data;
-				
+
 				Data.Bytes[1] = UEDATX;
 				Data.Bytes[0] = UEDATX;
-			
+
 				return Data.Word;
 			}
 
@@ -680,7 +683,7 @@
 				UEDATX = (Word & 0xFF);
 				UEDATX = (Word >> 8);
 			}
-			
+
 			/** Writes two bytes to the currently selected endpoint's bank in big endian format, for IN
 			 *  direction endpoints.
 			 *
@@ -703,7 +706,7 @@
 			static inline void Endpoint_Discard_Word(void)
 			{
 				uint8_t Dummy;
-				
+
 				Dummy = UEDATX;
 				Dummy = UEDATX;
 			}
@@ -723,12 +726,12 @@
 					uint32_t DWord;
 					uint8_t  Bytes[4];
 				} Data;
-				
+
 				Data.Bytes[0] = UEDATX;
 				Data.Bytes[1] = UEDATX;
 				Data.Bytes[2] = UEDATX;
 				Data.Bytes[3] = UEDATX;
-			
+
 				return Data.DWord;
 			}
 
@@ -747,12 +750,12 @@
 					uint32_t DWord;
 					uint8_t  Bytes[4];
 				} Data;
-				
+
 				Data.Bytes[3] = UEDATX;
 				Data.Bytes[2] = UEDATX;
 				Data.Bytes[1] = UEDATX;
 				Data.Bytes[0] = UEDATX;
-			
+
 				return Data.DWord;
 			}
 
@@ -771,7 +774,7 @@
 				UEDATX = (DWord >> 16);
 				UEDATX = (DWord >> 24);
 			}
-			
+
 			/** Writes four bytes to the currently selected endpoint's bank in big endian format, for IN
 			 *  direction endpoints.
 			 *
@@ -788,7 +791,7 @@
 				UEDATX = (DWord &  0xFF);
 			}
 
-			/** Discards four bytes from the currently selected endpoint's bank, for OUT direction endpoints.	
+			/** Discards four bytes from the currently selected endpoint's bank, for OUT direction endpoints.
 			 *
 			 *  \ingroup Group_EndpointPrimitiveRW
 			 */
@@ -796,7 +799,7 @@
 			static inline void Endpoint_Discard_DWord(void)
 			{
 				uint8_t Dummy;
-				
+
 				Dummy = UEDATX;
 				Dummy = UEDATX;
 				Dummy = UEDATX;
@@ -847,7 +850,8 @@
 		#if defined(__cplusplus)
 			}
 		#endif
-		
+
 #endif
 
 /** @} */
+

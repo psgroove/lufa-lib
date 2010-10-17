@@ -1,7 +1,7 @@
 /*
              LUFA Library
      Copyright (C) Dean Camera, 2010.
-              
+
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 */
@@ -9,13 +9,13 @@
 /*
   Copyright 2010  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
-  Permission to use, copy, modify, distribute, and sell this 
+  Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
-  without fee, provided that the above copyright notice appear in 
+  without fee, provided that the above copyright notice appear in
   all copies and that both that the copyright notice and this
-  permission notice and warranty disclaimer appear in supporting 
-  documentation, and that the name of the author not be used in 
-  advertising or publicity pertaining to distribution of the 
+  permission notice and warranty disclaimer appear in supporting
+  documentation, and that the name of the author not be used in
+  advertising or publicity pertaining to distribution of the
   software without specific, written prior permission.
 
   The author disclaim all warranties with regard to this
@@ -42,37 +42,56 @@
 		#include <avr/pgmspace.h>
 
 	/* Macros: */
-		/** Macro to define a CDC class-specific functional descriptor. CDC functional descriptors have a
-		 *  uniform structure but variable sized data payloads, thus cannot be represented accurately by
-		 *  a single typedef struct. A macro is used instead so that functional descriptors can be created
-		 *  easily by specifying the size of the payload. This allows sizeof() to work correctly.
-		 *
-		 *  \param[in] DataSize  Size in bytes of the CDC functional descriptor's data payload
-		 */		
-		#define CDC_FUNCTIONAL_DESCRIPTOR(DataSize)        \
-		     struct                                        \
-		     {                                             \
-		          USB_Descriptor_Header_t Header;          \
-			      uint8_t                 SubType;         \
-		          uint8_t                 Data[DataSize];  \
-		     }
+		/** Endpoint number of the CDC device-to-host data IN endpoint. */
+		#define CDC_TX_EPNUM                   1
+
+		/** Endpoint number of the CDC host-to-device data OUT endpoint. */
+		#define CDC_RX_EPNUM                   2
 
 		/** Endpoint number of the CDC device-to-host notification IN endpoint. */
 		#define CDC_NOTIFICATION_EPNUM         3
 
-		/** Endpoint number of the CDC device-to-host data IN endpoint. */
-		#define CDC_TX_EPNUM                   1	
-
-		/** Endpoint number of the CDC host-to-device data OUT endpoint. */
-		#define CDC_RX_EPNUM                   2	
+		/** Size in bytes of the CDC data IN and OUT endpoints. */
+		#define CDC_TXRX_EPSIZE                64
 
 		/** Size in bytes of the CDC device-to-host notification IN endpoint. */
 		#define CDC_NOTIFICATION_EPSIZE        8
 
-		/** Size in bytes of the CDC data IN and OUT endpoints. */
-		#define CDC_TXRX_EPSIZE                64
-
 	/* Type Defines: */
+		/** Type define for a CDC class-specific functional header descriptor. This indicates to the host that the device
+		 *  contains one or more CDC functional data descriptors, which give the CDC interface's capabilities and configuration.
+		 *  See the CDC class specification for more details.
+		 */
+		typedef struct
+		{
+			USB_Descriptor_Header_t Header; /**< Regular descriptor header containing the descriptor's type and length. */
+			uint8_t                 Subtype; /**< Sub type value used to distinguish between CDC class-specific descriptors. */
+			uint16_t                CDCSpecification; /**< Version number of the CDC specification implemented by the device,
+			                                           *   encoded in BCD format.
+			                                           */
+		} USB_Descriptor_CDC_FunctionalHeader_t;
+
+		/** Type define for a CDC class-specific functional ACM descriptor. This indicates to the host that the CDC interface
+		 *  supports the CDC ACM subclass of the CDC specification. See the CDC class specification for more details.
+		 */
+		typedef struct
+		{
+			USB_Descriptor_Header_t Header; /**< Regular descriptor header containing the descriptor's type and length. */
+			uint8_t                 Subtype; /**< Sub type value used to distinguish between CDC class-specific descriptors. */
+			uint8_t                 Capabilities; /**< Capabilities of the ACM interface, given as a bit mask. */
+		} USB_Descriptor_CDC_FunctionalACM_t;
+
+		/** Type define for a CDC class-specific functional Union descriptor. This indicates to the host that specific
+		 *  CDC control and data interfaces are related. See the CDC class specification for more details.
+		 */
+		typedef struct
+		{
+			USB_Descriptor_Header_t Header; /**< Regular descriptor header containing the descriptor's type and length. */
+			uint8_t                 Subtype; /**< Sub type value used to distinguish between CDC class-specific descriptors. */
+			uint8_t                 MasterInterfaceNumber; /**< Interface number of the CDC Control interface. */
+			uint8_t                 SlaveInterfaceNumber; /**< Interface number of the CDC Data interface. */
+		} USB_Descriptor_CDC_FunctionalUnion_t;
+
 		/** Type define for the device configuration descriptor structure. This must be defined in the
 		 *  application code, as the configuration descriptor contains several sub-descriptors which
 		 *  vary between devices, and which describe the device's usage to the host.
@@ -81,9 +100,9 @@
 		{
 			USB_Descriptor_Configuration_Header_t    Config;
 			USB_Descriptor_Interface_t               CDC_CCI_Interface;
-			CDC_FUNCTIONAL_DESCRIPTOR(2)             CDC_Functional_Header;
-			CDC_FUNCTIONAL_DESCRIPTOR(1)             CDC_Functional_AbstractControlManagement;
-			CDC_FUNCTIONAL_DESCRIPTOR(2)             CDC_Functional_Union;
+			USB_Descriptor_CDC_FunctionalHeader_t    CDC_Functional_Header;
+			USB_Descriptor_CDC_FunctionalACM_t       CDC_Functional_ACM;
+			USB_Descriptor_CDC_FunctionalUnion_t     CDC_Functional_Union;
 			USB_Descriptor_Endpoint_t                CDC_NotificationEndpoint;
 			USB_Descriptor_Interface_t               CDC_DCI_Interface;
 			USB_Descriptor_Endpoint_t                RNDIS_DataOutEndpoint;
@@ -97,3 +116,4 @@
 		                                    ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(3);
 
 #endif
+

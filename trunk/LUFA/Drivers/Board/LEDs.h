@@ -1,7 +1,7 @@
 /*
              LUFA Library
      Copyright (C) Dean Camera, 2010.
-              
+
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 */
@@ -9,13 +9,13 @@
 /*
   Copyright 2010  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
-  Permission to use, copy, modify, distribute, and sell this 
+  Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
-  without fee, provided that the above copyright notice appear in 
+  without fee, provided that the above copyright notice appear in
   all copies and that both that the copyright notice and this
-  permission notice and warranty disclaimer appear in supporting 
-  documentation, and that the name of the author not be used in 
-  advertising or publicity pertaining to distribution of the 
+  permission notice and warranty disclaimer appear in supporting
+  documentation, and that the name of the author not be used in
+  advertising or publicity pertaining to distribution of the
   software without specific, written prior permission.
 
   The author disclaim all warranties with regard to this
@@ -39,6 +39,8 @@
  *
  *  If the BOARD value is set to BOARD_USER, this will include the /Board/LEDs.h file in the user project
  *  directory.
+ *
+ *  For possible BOARD makefile values, see \ref Group_BoardTypes.
  */
 
 /** \ingroup Group_BoardDrivers
@@ -56,9 +58,11 @@
  *  directory. Otherwise, it will include the appropriate built in board driver header file. If the BOARD value
  *  is set to BOARD_NONE, this driver is silently disabled.
  *
+ *  For possible BOARD makefile values, see \ref Group_BoardTypes.
+ *
  *  \note To make code as compatible as possible, it is assumed that all boards carry a minimum of four LEDs. If
  *        a board contains less than four LEDs, the remaining LED masks are defined to 0 so as to have no effect.
- *        If other behaviour is desired, either alias the remaining LED masks to existing LED masks via the -D 
+ *        If other behaviour is desired, either alias the remaining LED masks to existing LED masks via the -D
  *        switch in the project makefile, or alias them to nothing in the makefile to cause compilation errors when
  *        a non-existing LED is referenced in application code. Note that this means that it is possible to make
  *        compatible code for a board with no LEDs by making a board LED driver (see \ref Page_WritingBoardDrivers)
@@ -75,7 +79,7 @@
 		#define __INCLUDE_FROM_LEDS_H
 		#define INCLUDE_FROM_LEDS_H
 	#endif
-	
+
 	/* Includes: */
 	#include "../../Common/Common.h"
 
@@ -111,10 +115,22 @@
 		#include "BENITO/LEDs.h"
 	#elif (BOARD == BOARD_JMDBU2)
 		#include "JMDBU2/LEDs.h"
+	#elif (BOARD == BOARD_OLIMEX162)
+		#include "OLIMEX162/LEDs.h"
+	#elif (BOARD == BOARD_USBFOO)
+		#include "USBFOO/LEDs.h"
+	#elif (BOARD == BOARD_UDIP)
+		#include "UDIP/LEDs.h"
+	#elif (BOARD == BOARD_BUI)
+		#include "BUI/LEDs.h"
+	#elif (BOARD == BOARD_UNO)
+		#include "UNO/LEDs.h"
+	#elif (BOARD == BOARD_CULV3)
+		#include "CULV3/LEDs.h"
 	#elif (BOARD == BOARD_USER)
 		#include "Board/LEDs.h"
 	#endif
-	
+
 	#if !defined(LEDS_LED1)
 		#define LEDS_LED1      0
 	#endif
@@ -130,7 +146,7 @@
 	#if !defined(LEDS_LED4)
 		#define LEDS_LED4      0
 	#endif
-	
+
 	/* Pseudo-Functions for Doxygen: */
 	#if defined(__DOXYGEN__)
 		/** Initialises the board LED driver so that the LEDs can be controlled. This sets the appropriate port
@@ -165,7 +181,7 @@
 		 */
 		static inline void LEDs_ChangeLEDs(const uint8_t LEDMask,
 		                                   const uint8_t ActiveMask);
-		
+
 		/** Toggles all LEDs in the LED mask, leaving all others in their current states.
 		 *
 		 *  \param[in] LEDMask  Mask of the board LEDs to manipulate (see board-specific LEDs.h driver file).
@@ -183,3 +199,4 @@
 #endif
 
 /** @} */
+

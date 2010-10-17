@@ -1,7 +1,7 @@
 /*
              LUFA Library
      Copyright (C) Dean Camera, 2010.
-              
+
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 */
@@ -9,13 +9,13 @@
 /*
   Copyright 2010  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
-  Permission to use, copy, modify, distribute, and sell this 
+  Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
-  without fee, provided that the above copyright notice appear in 
+  without fee, provided that the above copyright notice appear in
   all copies and that both that the copyright notice and this
-  permission notice and warranty disclaimer appear in supporting 
-  documentation, and that the name of the author not be used in 
-  advertising or publicity pertaining to distribution of the 
+  permission notice and warranty disclaimer appear in supporting
+  documentation, and that the name of the author not be used in
+  advertising or publicity pertaining to distribution of the
   software without specific, written prior permission.
 
   The author disclaim all warranties with regard to this
@@ -64,13 +64,13 @@
  *
  *  @{
  */
- 
+
 #ifndef __USBEVENTS_H__
 #define __USBEVENTS_H__
 
 	/* Includes: */
 		#include <stdint.h>
-		
+
 		#include "../../../Common/Common.h"
 		#include "USBMode.h"
 
@@ -83,19 +83,10 @@
 		#if !defined(__INCLUDE_FROM_USB_DRIVER)
 			#error Do not include this file directly. Include LUFA/Drivers/USB/USB.h instead.
 		#endif
-		
-	/* Public Interface - May be used in end-application: */			
+
+	/* Public Interface - May be used in end-application: */
 		/* Pseudo-Functions for Doxygen: */
 		#if !defined(__INCLUDE_FROM_EVENTS_C) || defined(__DOXYGEN__)
-			/** Event for USB stack initialization failure. This event fires when the USB interface fails to
-			 *  initialize correctly due to a hardware or software fault.
-			 *
-			 *  \note This event only exists on USB AVR models which support dual role modes.
-			 *
-			 *  \param[in] ErrorCode  Error code indicating the failure reason, a value in \ref USB_InitErrorCodes_t.
-			 */
-			void EVENT_USB_InitFailure(const uint8_t ErrorCode);
-
 			/** Event for USB mode pin level change. This event fires when the USB interface is set to dual role
 			 *  mode, and the UID pin level has changed to indicate a new mode (device or host). This event fires
 			 *  before the mode is switched to the newly indicated mode but after the \ref EVENT_USB_Device_Disconnect
@@ -121,7 +112,7 @@
 			 *        \ref Group_USBManagement documentation).
 			 */
 			void EVENT_USB_Host_HostError(const uint8_t ErrorCode);
-			
+
 			/** Event for USB device attachment. This event fires when a the USB interface is in host mode, and
 			 *  a USB device has been connected to the USB interface. This is interrupt driven, thus fires before
 			 *  the standard \ref EVENT_USB_Device_Connect() event and so can be used to programmatically start the USB
@@ -150,11 +141,11 @@
 			 *  \see \ref USB_USBTask() for more information on the USB management task and reducing CPU usage.
 			 */
 			void EVENT_USB_Host_DeviceUnattached(void);
-			
+
 			/** Event for USB device enumeration failure. This event fires when a the USB interface is
 			 *  in host mode, and an attached USB device has failed to enumerate completely.
 			 *
-			 *  \param[in] ErrorCode     Error code indicating the failure reason, a value in 
+			 *  \param[in] ErrorCode     Error code indicating the failure reason, a value in
 			 *                           \ref USB_Host_EnumerationErrorCodes_t.
 			 *
 			 *  \param[in] SubErrorCode  Sub error code indicating the reason for failure - for example, if the
@@ -179,6 +170,23 @@
 			 *  and cause the host to reset the USB bus.
 			 */
 			void EVENT_USB_Host_DeviceEnumerationComplete(void);
+
+			/** Event for USB Start Of Frame detection, when enabled. This event fires at the start of each USB
+			 *  frame, once per millisecond, and is synchronized to the USB bus. This can be used as an accurate
+			 *  millisecond timer source when the USB bus is not suspended while in host mode.
+			 *
+			 *  This event is time-critical; it is run once per millisecond and thus long handlers will significantly
+			 *  degrade device performance. This event should only be enabled when needed to reduce device wake-ups.
+			 *
+			 *  \note This event is not normally active - it must be manually enabled and disabled via the
+			 *        \ref USB_Host_EnableSOFEvents() and \ref USB_Host_DisableSOFEvents() commands after enumeration of
+			 *        a USB device.
+			 *        \n\n
+			 *
+			 *  \note This event does not exist if the USB_DEVICE_ONLY token is supplied to the compiler (see
+			 *        \ref Group_USBManagement documentation).
+			 */
+			void EVENT_USB_Host_StartOfFrame(void);
 
 			/** Event for USB device connection. This event fires when the AVR in device mode and the device is connected
 			 *  to a host, beginning the enumeration process, measured by a rising level on the AVR's VBUS pin.
@@ -319,18 +327,17 @@
 			 */
 			void EVENT_USB_Device_StartOfFrame(void);
 		#endif
-		
+
 	/* Private Interface - For use in library only: */
 	#if !defined(__DOXYGEN__)
 		/* Function Prototypes: */
 			#if defined(__INCLUDE_FROM_EVENTS_C)
 				void USB_Event_Stub(void) ATTR_CONST;
-					
+
 				#if defined(USB_CAN_BE_BOTH)
-					void EVENT_USB_InitFailure(const uint8_t ErrorCode) ATTR_WEAK ATTR_ALIAS(USB_Event_Stub);
 					void EVENT_USB_UIDChange(void) ATTR_WEAK ATTR_ALIAS(USB_Event_Stub);
 				#endif
-				
+
 				#if defined(USB_CAN_BE_HOST)
 					void EVENT_USB_Host_HostError(const uint8_t ErrorCode) ATTR_WEAK ATTR_ALIAS(USB_Event_Stub);
 					void EVENT_USB_Host_DeviceAttached(void) ATTR_WEAK ATTR_ALIAS(USB_Event_Stub);
@@ -339,6 +346,7 @@
 					void EVENT_USB_Host_DeviceEnumerationFailed(const uint8_t ErrorCode,
                                                                 const uint8_t SubErrorCode)
 					                                            ATTR_WEAK ATTR_ALIAS(USB_Event_Stub);
+					void EVENT_USB_Host_StartOfFrame(void) ATTR_WEAK ATTR_ALIAS(USB_Event_Stub);
 				#endif
 
 				#if defined(USB_CAN_BE_DEVICE)
@@ -358,7 +366,8 @@
 		#if defined(__cplusplus)
 			}
 		#endif
-	
+
 #endif
 
 /** @} */
+

@@ -1,7 +1,7 @@
 /*
              LUFA Library
      Copyright (C) Dean Camera, 2010.
-              
+
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 */
@@ -9,13 +9,13 @@
 /*
   Copyright 2010  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
-  Permission to use, copy, modify, distribute, and sell this 
+  Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
-  without fee, provided that the above copyright notice appear in 
+  without fee, provided that the above copyright notice appear in
   all copies and that both that the copyright notice and this
-  permission notice and warranty disclaimer appear in supporting 
-  documentation, and that the name of the author not be used in 
-  advertising or publicity pertaining to distribution of the 
+  permission notice and warranty disclaimer appear in supporting
+  documentation, and that the name of the author not be used in
+  advertising or publicity pertaining to distribution of the
   software without specific, written prior permission.
 
   The author disclaim all warranties with regard to this
@@ -38,8 +38,11 @@
 
 	/* Includes: */
 		#include <LUFA/Drivers/USB/USB.h>
-		
-		#include "BluetoothHost.h"
+
+	/* Macros: */
+		#define BLUETOOTH_DATA_IN_PIPE         1
+		#define BLUETOOTH_DATA_OUT_PIPE        2
+		#define BLUETOOTH_EVENTS_PIPE          3
 
 	/* Enums: */
 		/** Enum for the possible return codes of the \ref ProcessConfigurationDescriptor() function. */
@@ -49,15 +52,13 @@
 			DevControlError                 = 1, /**< A control request to the device failed to complete successfully */
 			DescriptorTooLarge              = 2, /**< The device's Configuration Descriptor is too large to process */
 			InvalidConfigDataReturned       = 3, /**< The device returned an invalid Configuration Descriptor */
-			NoBTInterfaceFound              = 4, /**< A compatible Bluetooth interface was not found in the device's Configuration Descriptor */
-			NoEndpointFound                 = 5, /**< A compatible set of Bluetooth endpoints were not found in the
-			                                      *   device's Bluetooth interface
-			                                      */
+			NoCompatibleInterfaceFound      = 4, /**< A compatible interface with the required endpoints was not found */
 		};
-	
+
 	/* Function Prototypes: */
 		uint8_t ProcessConfigurationDescriptor(void);
-		
+
 		uint8_t DComp_NextInterfaceBluetoothDataEndpoint(void* CurrentDescriptor);
 
 #endif
+

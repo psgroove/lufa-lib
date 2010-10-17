@@ -1,7 +1,7 @@
 /*
              LUFA Library
      Copyright (C) Dean Camera, 2010.
-              
+
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 */
@@ -9,13 +9,13 @@
 /*
   Copyright 2010  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
-  Permission to use, copy, modify, distribute, and sell this 
+  Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
-  without fee, provided that the above copyright notice appear in 
+  without fee, provided that the above copyright notice appear in
   all copies and that both that the copyright notice and this
-  permission notice and warranty disclaimer appear in supporting 
-  documentation, and that the name of the author not be used in 
-  advertising or publicity pertaining to distribution of the 
+  permission notice and warranty disclaimer appear in supporting
+  documentation, and that the name of the author not be used in
+  advertising or publicity pertaining to distribution of the
   software without specific, written prior permission.
 
   The author disclaim all warranties with regard to this
@@ -46,7 +46,7 @@
  *
  *  @{
  */
- 
+
 #ifndef _HID_CLASS_COMMON_H_
 #define _HID_CLASS_COMMON_H_
 
@@ -59,47 +59,8 @@
 		#if !defined(__INCLUDE_FROM_HID_DRIVER)
 			#error Do not include this file directly. Include LUFA/Drivers/Class/HID.h instead.
 		#endif
-		
+
 	/* Macros: */
-		/** HID class-specific Request to get the current HID report from the device. */
-		#define REQ_GetReport                   0x01
-
-		/** HID class-specific Request to get the current device idle count. */
-		#define REQ_GetIdle                     0x02
-
-		/** HID class-specific Request to set the current HID report to the device. */
-		#define REQ_SetReport                   0x09
-
-		/** HID class-specific Request to set the device's idle count. */
-		#define REQ_SetIdle                     0x0A
-
-		/** HID class-specific Request to get the current HID report protocol mode. */
-		#define REQ_GetProtocol                 0x03
-
-		/** HID class-specific Request to set the current HID report protocol mode. */
-		#define REQ_SetProtocol                 0x0B
-
-		/** Descriptor header type value, to indicate a HID class HID descriptor. */
-		#define DTYPE_HID                       0x21
-		
-		/** Descriptor header type value, to indicate a HID class HID report descriptor. */
-		#define DTYPE_Report                    0x22
-		
-		/** Constant for the protocol value of a HID interface descriptor, indicating that the interface does not support
-		 *  any HID class boot protocol (see HID Class Specification).
-		 */
-		#define HID_NON_BOOT_PROTOCOL           0x00
-
-		/** Constant for the protocol value of a HID interface descriptor, indicating that the interface supports the
-		 *  HID class Keyboard boot protocol (see HID Class Specification).
-		 */
-		#define HID_BOOT_KEYBOARD_PROTOCOL      0x01
-
-		/** Constant for the protocol value of a HID interface descriptor, indicating that the interface supports the
-		 *  HID class Mouse boot protocol (see HID Class Specification).
-		 */
-		#define HID_BOOT_MOUSE_PROTOCOL         0x02
-		
 		/** Constant for a keyboard report modifier byte, indicating that the keyboard's left control key is currently pressed. */
 		#define HID_KEYBOARD_MODIFER_LEFTCTRL   (1 << 0)
 
@@ -123,10 +84,10 @@
 
 		/** Constant for a keyboard report modifier byte, indicating that the keyboard's right GUI key is currently pressed. */
 		#define HID_KEYBOARD_MODIFER_RIGHTGUI   (1 << 7)
-		
+
 		/** Constant for a keyboard output report LED byte, indicating that the host's NUM LOCK mode is currently set. */
 		#define HID_KEYBOARD_LED_NUMLOCK        (1 << 0)
-		
+
 		/** Constant for a keyboard output report LED byte, indicating that the host's CAPS LOCK mode is currently set. */
 		#define HID_KEYBOARD_LED_CAPSLOCK       (1 << 1)
 
@@ -137,31 +98,92 @@
 		#define HID_KEYBOARD_LED_KATANA         (1 << 3)
 
 	/* Type Defines: */
+		/** Enum for the HID class specific control requests that can be issued by the USB bus host. */
+		enum HID_ClassRequests_t
+		{
+			HID_REQ_GetReport   = 0x01, /**< HID class-specific Request to get the current HID report from the device. */
+			HID_REQ_GetIdle     = 0x02, /**< HID class-specific Request to get the current device idle count. */
+			HID_REQ_SetReport   = 0x09, /**< HID class-specific Request to set the current HID report to the device. */
+			HID_REQ_SetIdle     = 0x0A, /**< HID class-specific Request to set the device's idle count. */
+			HID_REQ_GetProtocol = 0x03, /**< HID class-specific Request to get the current HID report protocol mode. */
+			HID_REQ_SetProtocol = 0x0B, /**< HID class-specific Request to set the current HID report protocol mode. */
+		};
+
+		/** Enum for the HID class specific descriptor types. */
+		enum HID_DescriptorTypes_t
+		{
+			HID_DTYPE_HID    = 0x21, /**< Descriptor header type value, to indicate a HID class HID descriptor. */
+			HID_DTYPE_Report = 0x22, /**< Descriptor header type value, to indicate a HID class HID report descriptor. */
+		};
+
+		/** Enum for the HID class boot protocols that may be supported by HID devices. */
+		enum HID_BootProtocols_t
+		{
+			HID_BOOTP_NonBootProtocol      = 0x00, /**< Constant for the protocol value of a HID interface descriptor, indicating
+			                                        *   that the interface does not support any HID class boot protocol (see HID
+			                                        *   Class Specification).
+			                                        */
+			HID_BOOTP_KeyboardBootProtocol = 0x01, /**< Constant for the protocol value of a HID interface descriptor, indicating
+			                                        *   that the interface supports the HID class Keyboard boot protocol (see HID
+			                                        *   Class Specification).
+			                                        */
+			HID_BOOTP_MouseBootProtocol    = 0x02, /**< Constant for the protocol value of a HID interface descriptor, indicating
+			                                        *   that the interface supports the HID class Mouse boot protocol (see HID Class
+			                                        *   Specification).
+			                                        */
+		};
+
 		/** Enum for the different types of HID reports. */
 		enum HID_ReportItemTypes_t
 		{
-			REPORT_ITEM_TYPE_In                   = 0, /**< Indicates that the item is an IN report type. */
-			REPORT_ITEM_TYPE_Out                  = 1, /**< Indicates that the item is an OUT report type. */
-			REPORT_ITEM_TYPE_Feature              = 2, /**< Indicates that the item is a FEATURE report type. */
+			HID_REPORT_ITEM_In      = 0, /**< Indicates that the item is an IN report type. */
+			HID_REPORT_ITEM_Out     = 1, /**< Indicates that the item is an OUT report type. */
+			HID_REPORT_ITEM_Feature = 2, /**< Indicates that the item is a FEATURE report type. */
 		};
 
-		/** \brief HID class-specific HID Descriptor.
+		/** \brief HID class-specific HID Descriptor (LUFA naming conventions).
 		 *
 		 *  Type define for the HID class-specific HID descriptor, to describe the HID device's specifications. Refer to the HID
 		 *  specification for details on the structure elements.
+		 *
+		 *  \see \ref USB_HID_StdDescriptor_HID_t for the version of this type with standard element names.
 		 */
 		typedef struct
 		{
-			USB_Descriptor_Header_t  Header; /**< Regular descriptor header containing the descriptor's type and length. */
-				
-			uint16_t                 HIDSpec; /**< BCD encoded version that the HID descriptor and device complies to. */
-			uint8_t                  CountryCode; /**< Country code of the localized device, or zero if universal. */
-		
-			uint8_t                  TotalReportDescriptors; /**< Total number of HID report descriptors for the interface. */
+			USB_Descriptor_Header_t Header; /**< Regular descriptor header containing the descriptor's type and length. */
 
-			uint8_t                  HIDReportType; /**< Type of HID report, set to \ref DTYPE_Report. */
-			uint16_t                 HIDReportLength; /**< Length of the associated HID report descriptor, in bytes. */
-		} USB_HID_Descriptor_t;
+			uint16_t                HIDSpec; /**< BCD encoded version that the HID descriptor and device complies to. */
+			uint8_t                 CountryCode; /**< Country code of the localized device, or zero if universal. */
+
+			uint8_t                 TotalReportDescriptors; /**< Total number of HID report descriptors for the interface. */
+
+			uint8_t                 HIDReportType; /**< Type of HID report, set to \ref HID_DTYPE_Report. */
+			uint16_t                HIDReportLength; /**< Length of the associated HID report descriptor, in bytes. */
+		} USB_HID_Descriptor_HID_t;
+
+		/** \brief HID class-specific HID Descriptor (USB-IF naming conventions).
+		 *
+		 *  Type define for the HID class-specific HID descriptor, to describe the HID device's specifications. Refer to the HID
+		 *  specification for details on the structure elements.
+		 *
+		 *  \see \ref USB_HID_Descriptor_HID_t for the version of this type with non-standard LUFA specific
+		 *       element names.
+		 */
+		typedef struct
+		{
+			uint8_t  bLength; /**< Size of the descriptor, in bytes. */
+			uint8_t  bDescriptorType; /**< Type of the descriptor, either a value in \ref USB_DescriptorTypes_t or a value
+			                           *   given by the specific class.
+			                           */
+
+			uint16_t bcdHID; /**< BCD encoded version that the HID descriptor and device complies to. */
+			uint8_t  bCountryCode; /**< Country code of the localized device, or zero if universal. */
+
+			uint8_t  bNumDescriptors; /**< Total number of HID report descriptors for the interface. */
+
+			uint8_t  bDescriptorType2; /**< Type of HID report, set to \ref HID_DTYPE_Report. */
+			uint16_t wDescriptorLength; /**< Length of the associated HID report descriptor, in bytes. */
+		} USB_HID_StdDescriptor_HID_t;
 
 		/** \brief Standard HID Boot Protocol Mouse Report.
 		 *
@@ -173,7 +195,7 @@
 			int8_t  X; /**< Current delta X movement of the mouse. */
 			int8_t  Y; /**< Current delta Y movement on the mouse. */
 		} USB_MouseReport_Data_t;
-		
+
 		/** \brief Standard HID Boot Protocol Keyboard Report.
 		 *
 		 *  Type define for a standard Boot Protocol Keyboard report
@@ -193,3 +215,4 @@
 #endif
 
 /** @} */
+

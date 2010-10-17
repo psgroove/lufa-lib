@@ -1,7 +1,7 @@
 /*
              LUFA Library
      Copyright (C) Dean Camera, 2010.
-              
+
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 */
@@ -9,13 +9,13 @@
 /*
   Copyright 2010  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
-  Permission to use, copy, modify, distribute, and sell this 
+  Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
-  without fee, provided that the above copyright notice appear in 
+  without fee, provided that the above copyright notice appear in
   all copies and that both that the copyright notice and this
-  permission notice and warranty disclaimer appear in supporting 
-  documentation, and that the name of the author not be used in 
-  advertising or publicity pertaining to distribution of the 
+  permission notice and warranty disclaimer appear in supporting
+  documentation, and that the name of the author not be used in
+  advertising or publicity pertaining to distribution of the
   software without specific, written prior permission.
 
   The author disclaim all warranties with regard to this
@@ -54,7 +54,7 @@
 		#include <avr/pgmspace.h>
 		#include <avr/eeprom.h>
 
-		#include "../../../Common/Common.h"	
+		#include "../../../Common/Common.h"
 		#include "../HighLevel/StdDescriptors.h"
 		#include "USBInterrupt.h"
 		#include "Endpoint.h"
@@ -67,7 +67,7 @@
 		#if !defined(__INCLUDE_FROM_USB_DRIVER)
 			#error Do not include this file directly. Include LUFA/Drivers/USB/USB.h instead.
 		#endif
-			
+
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			#if defined(USB_SERIES_4_AVR) || defined(USB_SERIES_6_AVR) || defined(USB_SERIES_7_AVR) || defined(__DOXYGEN__)
@@ -82,7 +82,7 @@
 				 */
 				#define USB_DEVICE_OPT_LOWSPEED            (1 << 0)
 			#endif
-			
+
 			/** Mask for the Options parameter of the \ref USB_Init() function. This indicates that the
 			 *  USB interface should be initialized in full speed (12Mb/s) mode.
 			 */
@@ -109,7 +109,7 @@
 			 *  \see \ref Group_Descriptors for more information on the RMWAKEUP feature and device descriptors.
 			 */
 			void USB_Device_SendRemoteWakeup(void);
-			
+
 		/* Type Defines: */
 			enum USB_Device_States_t
 			{
@@ -138,33 +138,47 @@
 				                                                *   resumed.
 				                                                */
 			};
-			
+
 		/* Inline Functions: */
-			/** Enables the device mode Start Of Frame events. When enabled, this causes the
-			 *  \ref EVENT_USB_Device_StartOfFrame() event to fire once per millisecond, synchronized to the USB bus,
-			 *  at the start of each USB frame when enumerated in device mode.
+			/** Returns the current USB frame number, when in device mode. Every millisecond the USB bus is active (i.e. enumerated to a host)
+			 *  the frame number is incremented by one.
 			 */
-			static inline void USB_Device_EnableSOFEvents(void) ATTR_ALWAYS_INLINE;
-			static inline void USB_Device_EnableSOFEvents(void)
+			static inline uint16_t USB_Device_GetFrameNumber(void)
 			{
-				USB_INT_Enable(USB_INT_SOFI);
+				return UDFNUM;
 			}
-				
-			/** Disables the device mode Start Of Frame events. When disabled, this stops the firing of the
-			 *  \ref EVENT_USB_Device_StartOfFrame() event when enumerated in device mode.
-			 */
-			static inline void USB_Device_DisableSOFEvents(void) ATTR_ALWAYS_INLINE;
-			static inline void USB_Device_DisableSOFEvents(void)
-			{
-				USB_INT_Disable(USB_INT_SOFI);
-			}
-			
+
+			#if !defined(NO_SOF_EVENTS)
+				/** Enables the device mode Start Of Frame events. When enabled, this causes the
+				 *  \ref EVENT_USB_Device_StartOfFrame() event to fire once per millisecond, synchronized to the USB bus,
+				 *  at the start of each USB frame when enumerated in device mode.
+				 *
+				 *  \note Not available when the NO_SOF_EVENTS compile time token is defined.
+				 */
+				static inline void USB_Device_EnableSOFEvents(void) ATTR_ALWAYS_INLINE;
+				static inline void USB_Device_EnableSOFEvents(void)
+				{
+					USB_INT_Enable(USB_INT_SOFI);
+				}
+
+				/** Disables the device mode Start Of Frame events. When disabled, this stops the firing of the
+				 *  \ref EVENT_USB_Device_StartOfFrame() event when enumerated in device mode.
+				 *
+				 *  \note Not available when the NO_SOF_EVENTS compile time token is defined.
+				 */
+				static inline void USB_Device_DisableSOFEvents(void) ATTR_ALWAYS_INLINE;
+				static inline void USB_Device_DisableSOFEvents(void)
+				{
+					USB_INT_Disable(USB_INT_SOFI);
+				}
+			#endif
+
 		/* Function Prototypes: */
 			/** Function to retrieve a given descriptor's size and memory location from the given descriptor type value,
-			 *  index and language ID. This function MUST be overridden in the user application (added with full, identical  
+			 *  index and language ID. This function MUST be overridden in the user application (added with full, identical
 			 *  prototype and name so that the library can call it to retrieve descriptor data.
 			 *
-			 *  \param[in] wValue               The type of the descriptor to retrieve in the upper byte, and the index in the 
+			 *  \param[in] wValue               The type of the descriptor to retrieve in the upper byte, and the index in the
 			 *                                  lower byte (when more than one descriptor of the given type exists, such as the
 			 *                                  case of string descriptors). The type may be one of the standard types defined
 			 *                                  in the DescriptorTypes_t enum, or may be a class-specific descriptor type value.
@@ -179,7 +193,7 @@
 			 *
 			 *  \note By default, the library expects all descriptors to be located in flash memory via the PROGMEM attribute.
 			 *        If descriptors should be located in RAM or EEPROM instead (to speed up access in the case of RAM, or to
-			 *        allow the descriptors to be changed dynamically at runtime) either the USE_RAM_DESCRIPTORS or the 
+			 *        allow the descriptors to be changed dynamically at runtime) either the USE_RAM_DESCRIPTORS or the
 			 *        USE_EEPROM_DESCRIPTORS tokens may be defined in the project makefile and passed to the compiler by the -D
 			 *        switch.
 			 *
@@ -202,7 +216,7 @@
 			{
 				UDCON |=  (1 << LSM);
 			}
-			
+
 			static inline void USB_Device_SetFullSpeed(void) ATTR_ALWAYS_INLINE;
 			static inline void USB_Device_SetFullSpeed(void)
 			{
@@ -213,11 +227,19 @@
 //			static inline void USB_Device_SetDeviceAddress(const uint8_t Address) ATTR_ALWAYS_INLINE;
 //			static inline void USB_Device_SetDeviceAddress(const uint8_t Address)
 //			{
-//				UDADDR = ((1 << ADDEN) | (Address & 0x7F));
+//				UDADDR  = ((UDADDR & (1 << ADDEN)) | (Address & 0x7F));
+//				UDADDR |= (1 << ADDEN);
 //			}
 			void USB_Device_SetDeviceAddress(uint8_t Address);
+
+			static inline bool USB_Device_IsAddressSet(void) ATTR_ALWAYS_INLINE;
+			static inline bool USB_Device_IsAddressSet(void)
+			{
+				return (UDADDR & (1 << ADDEN));
+			}
 	#endif
 
 #endif
 
 /** @} */
+

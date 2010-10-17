@@ -29,14 +29,21 @@
  *                        German Physicist. It compiles for AVR-GCC and can potentially be modified to work on other USB
  *                        AVR models.
  *
+ *  - <b>Name:</b> FreakUSB Stack (<i>FreakLabs</i>) \n
+ *    <b>Cost:</b> Free \n
+ *    <b>License:</b> Modified BSD \n
+ *    <b>Website:</b> http://freaklabs.org/index.php/FreakUSB-Open-Source-USB-Device-Stack.html \n
+ *    <b>Description:</b> An open source simple USB stack for a selection of the USB AVRs. Contains a sample class driver
+ *                        for the CDC-ACM class, however other class driver implementations are also possible.
+ *
  *  - <b>Name:</b> PJRC Teensy Stack (<i>Paul Stoffregen</i>) \n
  *    <b>Cost:</b> Free \n
  *    <b>License:</b> BSD \n
  *    <b>Website:</b> http://www.pjrc.com/teensy/usb_debug_only.html \n
  *    <b>Description:</b> Not so much a complete stack as a collection of USB enabled demos, this library is specifically
  *                        designed for the PJRC Teensy line of USB AVRs, and thus may need to be modified for other USB AVR
- *                        chips. These minimal code samples shows the inner workings of the USB controller, without all the 
- *                        abstraction present in most other USB AVR stacks. 
+ *                        chips. These minimal code samples shows the inner workings of the USB controller, without all the
+ *                        abstraction present in most other USB AVR stacks.
  *
  *  \section Sec_SoftwareStacks Software AVR Stacks
  *  These are the known alternative USB stacks which can run on regular AVR models, lacking dedicated hardware USB controllers
@@ -59,4 +66,4 @@
  *                        Used in many commercial and non-commercial designs, with user-submitted projects available for viewing
  *                        on the company's website. Uses C language code mixed with assembly for time-critical sections.
  */
- 
+

@@ -43,14 +43,14 @@
 		#include <LUFA/Drivers/USB/USB.h>
 
 	/* Macros: */
+		/** Endpoint number of the TMC notification IN endpoint. */
+		#define TMC_NOTIFICATION_EPNUM  2	
+
 		/** Endpoint number of the TMC device-to-host data IN endpoint. */
 		#define TMC_IN_EPNUM            3	
 
 		/** Endpoint number of the TMC host-to-device data OUT endpoint. */
 		#define TMC_OUT_EPNUM           4	
-
-		/** Endpoint number of the TMC notification IN endpoint. */
-		#define TMC_NOTIFICATION_EPNUM  2	
 
 		/** Size in bytes of the TMC data endpoints. */
 		#define TMC_IO_EPSIZE           64
@@ -79,3 +79,4 @@
 		                                    ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(3);
 
 #endif
+

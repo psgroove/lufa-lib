@@ -1,7 +1,7 @@
 /*
              LUFA Library
      Copyright (C) Dean Camera, 2010.
-              
+
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 */
@@ -9,13 +9,13 @@
 /*
   Copyright 2010  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
-  Permission to use, copy, modify, distribute, and sell this 
+  Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
-  without fee, provided that the above copyright notice appear in 
+  without fee, provided that the above copyright notice appear in
   all copies and that both that the copyright notice and this
-  permission notice and warranty disclaimer appear in supporting 
-  documentation, and that the name of the author not be used in 
-  advertising or publicity pertaining to distribution of the 
+  permission notice and warranty disclaimer appear in supporting
+  documentation, and that the name of the author not be used in
+  advertising or publicity pertaining to distribution of the
   software without specific, written prior permission.
 
   The author disclaim all warranties with regard to this
@@ -40,103 +40,98 @@ uint8_t CDC_Host_ConfigurePipes(USB_ClassInfo_CDC_Host_t* const CDCInterfaceInfo
                                 uint16_t ConfigDescriptorSize,
                                 void* ConfigDescriptorData)
 {
-	uint8_t FoundEndpoints = 0;
+	USB_Descriptor_Endpoint_t*  DataINEndpoint       = NULL;
+	USB_Descriptor_Endpoint_t*  DataOUTEndpoint      = NULL;
+	USB_Descriptor_Endpoint_t*  NotificationEndpoint = NULL;
+	USB_Descriptor_Interface_t* CDCControlInterface  = NULL;
 
 	memset(&CDCInterfaceInfo->State, 0x00, sizeof(CDCInterfaceInfo->State));
 
 	if (DESCRIPTOR_TYPE(ConfigDescriptorData) != DTYPE_Configuration)
 	  return CDC_ENUMERROR_InvalidConfigDescriptor;
-	
-	if (USB_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
-	                              DCOMP_CDC_Host_NextCDCControlInterface) != DESCRIPTOR_SEARCH_COMP_Found)
-	{
-		return CDC_ENUMERROR_NoCDCInterfaceFound;
-	}
-	
-	CDCInterfaceInfo->State.ControlInterfaceNumber = DESCRIPTOR_CAST(ConfigDescriptorData, USB_Descriptor_Interface_t).InterfaceNumber;
 
-	while (FoundEndpoints != (CDC_FOUND_NOTIFICATION_IN | CDC_FOUND_DATAPIPE_IN | CDC_FOUND_DATAPIPE_OUT))
+	while (!(DataINEndpoint) || !(DataOUTEndpoint) || !(NotificationEndpoint))
 	{
-		if (USB_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
+		if (!(CDCControlInterface) ||
+		    USB_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
 		                              DCOMP_CDC_Host_NextCDCInterfaceEndpoint) != DESCRIPTOR_SEARCH_COMP_Found)
 		{
-			if (FoundEndpoints & CDC_FOUND_NOTIFICATION_IN)
+			if (NotificationEndpoint)
 			{
-				if (USB_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData, 
+				if (USB_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
 				                              DCOMP_CDC_Host_NextCDCDataInterface) != DESCRIPTOR_SEARCH_COMP_Found)
 				{
-					return CDC_ENUMERROR_NoCDCInterfaceFound;
+					return CDC_ENUMERROR_NoCompatibleInterfaceFound;
 				}
+
+				DataINEndpoint  = NULL;
+				DataOUTEndpoint = NULL;
 			}
 			else
 			{
-				FoundEndpoints = 0;
-
-				Pipe_SelectPipe(CDCInterfaceInfo->Config.DataINPipeNumber);
-				Pipe_DisablePipe();
-				Pipe_SelectPipe(CDCInterfaceInfo->Config.DataOUTPipeNumber);
-				Pipe_DisablePipe();
-				Pipe_SelectPipe(CDCInterfaceInfo->Config.NotificationPipeNumber);
-				Pipe_DisablePipe();
-			
 				if (USB_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
 				                              DCOMP_CDC_Host_NextCDCControlInterface) != DESCRIPTOR_SEARCH_COMP_Found)
 				{
-					return CDC_ENUMERROR_NoCDCInterfaceFound;
+					return CDC_ENUMERROR_NoCompatibleInterfaceFound;
 				}
+
+				CDCControlInterface = DESCRIPTOR_PCAST(ConfigDescriptorData, USB_Descriptor_Interface_t);
+
+				NotificationEndpoint = NULL;
 			}
 
-			if (USB_GetNextDescriptorComp(&ConfigDescriptorSize, &ConfigDescriptorData,
-			                              DCOMP_CDC_Host_NextCDCInterfaceEndpoint) != DESCRIPTOR_SEARCH_COMP_Found)
-			{
-				return CDC_ENUMERROR_EndpointsNotFound;
-			}
+			continue;
 		}
-		
+
 		USB_Descriptor_Endpoint_t* EndpointData = DESCRIPTOR_PCAST(ConfigDescriptorData, USB_Descriptor_Endpoint_t);
 
-		if ((EndpointData->Attributes & EP_TYPE_MASK) == EP_TYPE_INTERRUPT)
+		if (EndpointData->EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
 		{
-			if (EndpointData->EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
-			{
-				Pipe_ConfigurePipe(CDCInterfaceInfo->Config.NotificationPipeNumber, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
-								   EndpointData->EndpointAddress, EndpointData->EndpointSize,
-								   CDCInterfaceInfo->Config.NotificationPipeDoubleBank ? PIPE_BANK_DOUBLE : PIPE_BANK_SINGLE);
-				CDCInterfaceInfo->State.NotificationPipeSize = EndpointData->EndpointSize;
-
-				Pipe_SetInterruptPeriod(EndpointData->PollingIntervalMS);
-				
-				FoundEndpoints |= CDC_FOUND_NOTIFICATION_IN;
-			}
+			if ((EndpointData->Attributes & EP_TYPE_MASK) == EP_TYPE_INTERRUPT)
+			  NotificationEndpoint = EndpointData;
+			else
+			  DataINEndpoint = EndpointData;
 		}
 		else
 		{
-			if (EndpointData->EndpointAddress & ENDPOINT_DESCRIPTOR_DIR_IN)
-			{
-				Pipe_ConfigurePipe(CDCInterfaceInfo->Config.DataINPipeNumber, EP_TYPE_BULK, PIPE_TOKEN_IN,
-				                   EndpointData->EndpointAddress, EndpointData->EndpointSize, 
-				                   CDCInterfaceInfo->Config.DataINPipeDoubleBank ? PIPE_BANK_DOUBLE : PIPE_BANK_SINGLE);
-
-				CDCInterfaceInfo->State.DataINPipeSize = EndpointData->EndpointSize;
-
-				FoundEndpoints |= CDC_FOUND_DATAPIPE_IN;
-			}
-			else
-			{
-				Pipe_ConfigurePipe(CDCInterfaceInfo->Config.DataOUTPipeNumber, EP_TYPE_BULK, PIPE_TOKEN_OUT,
-								   EndpointData->EndpointAddress, EndpointData->EndpointSize, 
-								   CDCInterfaceInfo->Config.DataOUTPipeDoubleBank ? PIPE_BANK_DOUBLE : PIPE_BANK_SINGLE);
-			
-				CDCInterfaceInfo->State.DataOUTPipeSize = EndpointData->EndpointSize;
-				
-				FoundEndpoints |= CDC_FOUND_DATAPIPE_OUT;
-			}
+			DataOUTEndpoint = EndpointData;
 		}
 	}
 
+	for (uint8_t PipeNum = 1; PipeNum < PIPE_TOTAL_PIPES; PipeNum++)
+	{
+		if (PipeNum == CDCInterfaceInfo->Config.DataINPipeNumber)
+		{
+			Pipe_ConfigurePipe(PipeNum, EP_TYPE_BULK, PIPE_TOKEN_IN,
+			                   DataINEndpoint->EndpointAddress, DataINEndpoint->EndpointSize,
+			                   CDCInterfaceInfo->Config.DataINPipeDoubleBank ? PIPE_BANK_DOUBLE : PIPE_BANK_SINGLE);
+
+			CDCInterfaceInfo->State.DataINPipeSize = DataINEndpoint->EndpointSize;
+		}
+		else if (PipeNum == CDCInterfaceInfo->Config.DataOUTPipeNumber)
+		{
+			Pipe_ConfigurePipe(PipeNum, EP_TYPE_BULK, PIPE_TOKEN_OUT,
+			                   DataOUTEndpoint->EndpointAddress, DataOUTEndpoint->EndpointSize,
+			                   CDCInterfaceInfo->Config.DataOUTPipeDoubleBank ? PIPE_BANK_DOUBLE : PIPE_BANK_SINGLE);
+
+			CDCInterfaceInfo->State.DataOUTPipeSize = DataOUTEndpoint->EndpointSize;
+		}
+		else if (PipeNum == CDCInterfaceInfo->Config.NotificationPipeNumber)
+		{
+			Pipe_ConfigurePipe(PipeNum, EP_TYPE_INTERRUPT, PIPE_TOKEN_IN,
+			                   NotificationEndpoint->EndpointAddress, NotificationEndpoint->EndpointSize,
+			                   CDCInterfaceInfo->Config.NotificationPipeDoubleBank ? PIPE_BANK_DOUBLE : PIPE_BANK_SINGLE);
+			Pipe_SetInterruptPeriod(NotificationEndpoint->PollingIntervalMS);
+
+			CDCInterfaceInfo->State.NotificationPipeSize = NotificationEndpoint->EndpointSize;
+		}
+	}
+
+	CDCInterfaceInfo->State.ControlInterfaceNumber = CDCControlInterface->InterfaceNumber;
 	CDCInterfaceInfo->State.ControlLineStates.HostToDevice = (CDC_CONTROL_LINE_OUT_RTS | CDC_CONTROL_LINE_OUT_DTR);
 	CDCInterfaceInfo->State.ControlLineStates.DeviceToHost = (CDC_CONTROL_LINE_IN_DCD  | CDC_CONTROL_LINE_IN_DSR);
 	CDCInterfaceInfo->State.IsActive = true;
+
 	return CDC_ENUMERROR_NoError;
 }
 
@@ -146,15 +141,15 @@ static uint8_t DCOMP_CDC_Host_NextCDCControlInterface(void* const CurrentDescrip
 	{
 		USB_Descriptor_Interface_t* CurrentInterface = DESCRIPTOR_PCAST(CurrentDescriptor,
 		                                                                USB_Descriptor_Interface_t);
-	
+
 		if ((CurrentInterface->Class    == CDC_CONTROL_CLASS)    &&
 		    (CurrentInterface->SubClass == CDC_CONTROL_SUBCLASS) &&
-			(CurrentInterface->Protocol == CDC_CONTROL_PROTOCOL))
+		    (CurrentInterface->Protocol == CDC_CONTROL_PROTOCOL))
 		{
 			return DESCRIPTOR_SEARCH_Found;
 		}
 	}
-	
+
 	return DESCRIPTOR_SEARCH_NotFound;
 }
 
@@ -164,15 +159,15 @@ static uint8_t DCOMP_CDC_Host_NextCDCDataInterface(void* const CurrentDescriptor
 	{
 		USB_Descriptor_Interface_t* CurrentInterface = DESCRIPTOR_PCAST(CurrentDescriptor,
 		                                                                USB_Descriptor_Interface_t);
-	
+
 		if ((CurrentInterface->Class    == CDC_DATA_CLASS)    &&
 		    (CurrentInterface->SubClass == CDC_DATA_SUBCLASS) &&
-			(CurrentInterface->Protocol == CDC_DATA_PROTOCOL))
+		    (CurrentInterface->Protocol == CDC_DATA_PROTOCOL))
 		{
 			return DESCRIPTOR_SEARCH_Found;
 		}
 	}
-	
+
 	return DESCRIPTOR_SEARCH_NotFound;
 }
 
@@ -182,9 +177,9 @@ static uint8_t DCOMP_CDC_Host_NextCDCInterfaceEndpoint(void* const CurrentDescri
 	{
 		USB_Descriptor_Endpoint_t* CurrentEndpoint = DESCRIPTOR_PCAST(CurrentDescriptor,
 		                                                              USB_Descriptor_Endpoint_t);
-	
+
 		uint8_t EndpointType = (CurrentEndpoint->Attributes & EP_TYPE_MASK);
-	
+
 		if (((EndpointType == EP_TYPE_BULK) || (EndpointType == EP_TYPE_INTERRUPT)) &&
 		    !(Pipe_IsEndpointBound(CurrentEndpoint->EndpointAddress)))
 		{
@@ -203,7 +198,7 @@ void CDC_Host_USBTask(USB_ClassInfo_CDC_Host_t* const CDCInterfaceInfo)
 {
 	if ((USB_HostState != HOST_STATE_Configured) || !(CDCInterfaceInfo->State.IsActive))
 	  return;
-	
+
 	Pipe_SelectPipe(CDCInterfaceInfo->Config.NotificationPipeNumber);
 	Pipe_Unfreeze();
 
@@ -211,14 +206,14 @@ void CDC_Host_USBTask(USB_ClassInfo_CDC_Host_t* const CDCInterfaceInfo)
 	{
 		USB_Request_Header_t Notification;
 		Pipe_Read_Stream_LE(&Notification, sizeof(USB_Request_Header_t), NO_STREAM_CALLBACK);
-		
-		if ((Notification.bRequest      == NOTIF_SerialState) &&
+
+		if ((Notification.bRequest      == CDC_NOTIF_SerialState) &&
 		    (Notification.bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE)))
 		{
 			Pipe_Read_Stream_LE(&CDCInterfaceInfo->State.ControlLineStates.DeviceToHost,
 			                    sizeof(CDCInterfaceInfo->State.ControlLineStates.DeviceToHost),
 			                    NO_STREAM_CALLBACK);
-			
+
 			Pipe_ClearIN();
 
 			EVENT_CDC_Host_ControLineStateChanged(CDCInterfaceInfo);
@@ -228,7 +223,7 @@ void CDC_Host_USBTask(USB_ClassInfo_CDC_Host_t* const CDCInterfaceInfo)
 			Pipe_ClearIN();
 		}
 	}
-	
+
 	Pipe_Freeze();
 
 	CDC_Host_Flush(CDCInterfaceInfo);
@@ -239,14 +234,14 @@ uint8_t CDC_Host_SetLineEncoding(USB_ClassInfo_CDC_Host_t* const CDCInterfaceInf
 	USB_ControlRequest = (USB_Request_Header_t)
 	{
 		.bmRequestType = (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE),
-		.bRequest      = REQ_SetLineEncoding,
+		.bRequest      = CDC_REQ_SetLineEncoding,
 		.wValue        = 0,
 		.wIndex        = CDCInterfaceInfo->State.ControlInterfaceNumber,
 		.wLength       = sizeof(CDCInterfaceInfo->State.LineEncoding),
 	};
 
 	Pipe_SelectPipe(PIPE_CONTROLPIPE);
-	
+
 	return USB_Host_SendControlRequest(&CDCInterfaceInfo->State.LineEncoding);
 }
 
@@ -255,14 +250,14 @@ uint8_t CDC_Host_SendControlLineStateChange(USB_ClassInfo_CDC_Host_t* const CDCI
 	USB_ControlRequest = (USB_Request_Header_t)
 	{
 		.bmRequestType = (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE),
-		.bRequest      = REQ_SetControlLineState,
+		.bRequest      = CDC_REQ_SetControlLineState,
 		.wValue        = CDCInterfaceInfo->State.ControlLineStates.HostToDevice,
 		.wIndex        = CDCInterfaceInfo->State.ControlInterfaceNumber,
 		.wLength       = 0,
 	};
 
 	Pipe_SelectPipe(PIPE_CONTROLPIPE);
-	
+
 	return USB_Host_SendControlRequest(NULL);
 }
 
@@ -272,14 +267,14 @@ uint8_t CDC_Host_SendBreak(USB_ClassInfo_CDC_Host_t* const CDCInterfaceInfo,
 	USB_ControlRequest = (USB_Request_Header_t)
 	{
 		.bmRequestType = (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE),
-		.bRequest      = REQ_SendBreak,
+		.bRequest      = CDC_REQ_SendBreak,
 		.wValue        = Duration,
 		.wIndex        = CDCInterfaceInfo->State.ControlInterfaceNumber,
 		.wLength       = 0,
 	};
 
 	Pipe_SelectPipe(PIPE_CONTROLPIPE);
-	
+
 	return USB_Host_SendControlRequest(NULL);
 }
 
@@ -292,12 +287,12 @@ uint8_t CDC_Host_SendString(USB_ClassInfo_CDC_Host_t* const CDCInterfaceInfo,
 
 	uint8_t ErrorCode;
 
-	Pipe_SelectPipe(CDCInterfaceInfo->Config.DataOUTPipeNumber);	
+	Pipe_SelectPipe(CDCInterfaceInfo->Config.DataOUTPipeNumber);
 
 	Pipe_Unfreeze();
 	ErrorCode = Pipe_Write_Stream_LE(Data, Length, NO_STREAM_CALLBACK);
 	Pipe_Freeze();
-	
+
 	return ErrorCode;
 }
 
@@ -306,12 +301,12 @@ uint8_t CDC_Host_SendByte(USB_ClassInfo_CDC_Host_t* const CDCInterfaceInfo,
 {
 	if ((USB_HostState != HOST_STATE_Configured) || !(CDCInterfaceInfo->State.IsActive))
 	  return PIPE_READYWAIT_DeviceDisconnected;
-	  
+
 	uint8_t ErrorCode;
 
-	Pipe_SelectPipe(CDCInterfaceInfo->Config.DataOUTPipeNumber);	
+	Pipe_SelectPipe(CDCInterfaceInfo->Config.DataOUTPipeNumber);
 	Pipe_Unfreeze();
-	
+
 	if (!(Pipe_IsReadWriteAllowed()))
 	{
 		Pipe_ClearOUT();
@@ -320,9 +315,9 @@ uint8_t CDC_Host_SendByte(USB_ClassInfo_CDC_Host_t* const CDCInterfaceInfo,
 		  return ErrorCode;
 	}
 
-	Pipe_Write_Byte(Data);	
+	Pipe_Write_Byte(Data);
 	Pipe_Freeze();
-	
+
 	return PIPE_READYWAIT_NoError;
 }
 
@@ -330,7 +325,7 @@ uint16_t CDC_Host_BytesReceived(USB_ClassInfo_CDC_Host_t* const CDCInterfaceInfo
 {
 	if ((USB_HostState != HOST_STATE_Configured) || !(CDCInterfaceInfo->State.IsActive))
 	  return 0;
-	
+
 	Pipe_SelectPipe(CDCInterfaceInfo->Config.DataINPipeNumber);
 	Pipe_Unfreeze();
 
@@ -351,7 +346,7 @@ uint16_t CDC_Host_BytesReceived(USB_ClassInfo_CDC_Host_t* const CDCInterfaceInfo
 	else
 	{
 		Pipe_Freeze();
-		
+
 		return 0;
 	}
 }
@@ -360,7 +355,7 @@ int16_t CDC_Host_ReceiveByte(USB_ClassInfo_CDC_Host_t* const CDCInterfaceInfo)
 {
 	if ((USB_HostState != HOST_STATE_Configured) || !(CDCInterfaceInfo->State.IsActive))
 	  return -1;
-	  
+
 	int16_t ReceivedByte = -1;
 
 	Pipe_SelectPipe(CDCInterfaceInfo->Config.DataINPipeNumber);
@@ -374,7 +369,7 @@ int16_t CDC_Host_ReceiveByte(USB_ClassInfo_CDC_Host_t* const CDCInterfaceInfo)
 		if (!(Pipe_BytesInPipe()))
 		  Pipe_ClearIN();
 	}
-	
+
 	Pipe_Freeze();
 
 	return ReceivedByte;
@@ -384,12 +379,12 @@ uint8_t CDC_Host_Flush(USB_ClassInfo_CDC_Host_t* const CDCInterfaceInfo)
 {
 	if ((USB_HostState != HOST_STATE_Configured) || !(CDCInterfaceInfo->State.IsActive))
 	  return PIPE_READYWAIT_DeviceDisconnected;
-	  
+
 	uint8_t ErrorCode;
 
-	Pipe_SelectPipe(CDCInterfaceInfo->Config.DataOUTPipeNumber);	
+	Pipe_SelectPipe(CDCInterfaceInfo->Config.DataOUTPipeNumber);
 	Pipe_Unfreeze();
-	
+
 	if (!(Pipe_BytesInPipe()))
 	  return PIPE_READYWAIT_NoError;
 
@@ -406,7 +401,7 @@ uint8_t CDC_Host_Flush(USB_ClassInfo_CDC_Host_t* const CDCInterfaceInfo)
 	}
 
 	Pipe_Freeze();
-	
+
 	return PIPE_READYWAIT_NoError;
 }
 
@@ -443,7 +438,7 @@ static int CDC_Host_getchar(FILE* Stream)
 static int CDC_Host_getchar_Blocking(FILE* Stream)
 {
 	int16_t ReceivedByte;
-	
+
 	while ((ReceivedByte = CDC_Host_ReceiveByte((USB_ClassInfo_CDC_Host_t*)fdev_get_udata(Stream))) < 0)
 	{
 		if (USB_HostState == HOST_STATE_Unattached)
@@ -462,3 +457,4 @@ void CDC_Host_Event_Stub(void)
 }
 
 #endif
+

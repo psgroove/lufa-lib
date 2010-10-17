@@ -1,7 +1,7 @@
 /*
              LUFA Library
      Copyright (C) Dean Camera, 2010.
-              
+
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 */
@@ -9,13 +9,13 @@
 /*
   Copyright 2010  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
-  Permission to use, copy, modify, distribute, and sell this 
+  Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
-  without fee, provided that the above copyright notice appear in 
+  without fee, provided that the above copyright notice appear in
   all copies and that both that the copyright notice and this
-  permission notice and warranty disclaimer appear in supporting 
-  documentation, and that the name of the author not be used in 
-  advertising or publicity pertaining to distribution of the 
+  permission notice and warranty disclaimer appear in supporting
+  documentation, and that the name of the author not be used in
+  advertising or publicity pertaining to distribution of the
   software without specific, written prior permission.
 
   The author disclaim all warranties with regard to this
@@ -38,9 +38,9 @@
 
 	/* Includes: */
 		#include <LUFA/Drivers/USB/USB.h>
-		
+
 		#include "MassStorageHost.h"
-		
+
 	/* Macros: */
 		/** Interface Class value for the Mass Storage Device class. */
 		#define MASS_STORE_CLASS               0x08
@@ -51,6 +51,12 @@
 		/** Interface Protocol value for the Bulk Only transport protocol. */
 		#define MASS_STORE_PROTOCOL            0x50
 
+		/** Pipe number of the Mass Storage data IN pipe. */
+		#define MASS_STORE_DATA_IN_PIPE        1
+
+		/** Pipe number of the Mass Storage data OUT pipe. */
+		#define MASS_STORE_DATA_OUT_PIPE       2
+
 	/* Enums: */
 		/** Enum for the possible return codes of the \ref ProcessConfigurationDescriptor() function. */
 		enum MassStorageHost_GetConfigDescriptorDataCodes_t
@@ -59,14 +65,14 @@
 			ControlError                    = 1, /**< A control request to the device failed to complete successfully */
 			DescriptorTooLarge              = 2, /**< The device's Configuration Descriptor is too large to process */
 			InvalidConfigDataReturned       = 3, /**< The device returned an invalid Configuration Descriptor */
-			NoInterfaceFound                = 4, /**< A compatible MSD interface was not found in the device's Configuration Descriptor */
-			NoEndpointFound                 = 5, /**< The correct MSD endpoint descriptors were not found in the device's MSD interface */
+			NoCompatibleInterfaceFound      = 4, /**< A compatible interface with the required endpoints was not found */
 		};
-		
+
 	/* Function Prototypes: */
-		uint8_t ProcessConfigurationDescriptor(void);	
+		uint8_t ProcessConfigurationDescriptor(void);
 
 		uint8_t DComp_NextMSInterface(void* CurrentDescriptor);
 		uint8_t DComp_NextMSInterfaceBulkDataEndpoint(void* CurrentDescriptor);
-		
+
 #endif
+

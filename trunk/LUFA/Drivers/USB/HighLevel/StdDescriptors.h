@@ -1,7 +1,7 @@
 /*
              LUFA Library
      Copyright (C) Dean Camera, 2010.
-              
+
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 */
@@ -9,13 +9,13 @@
 /*
   Copyright 2010  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
-  Permission to use, copy, modify, distribute, and sell this 
+  Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
-  without fee, provided that the above copyright notice appear in 
+  without fee, provided that the above copyright notice appear in
   all copies and that both that the copyright notice and this
-  permission notice and warranty disclaimer appear in supporting 
-  documentation, and that the name of the author not be used in 
-  advertising or publicity pertaining to distribution of the 
+  permission notice and warranty disclaimer appear in supporting
+  documentation, and that the name of the author not be used in
+  advertising or publicity pertaining to distribution of the
   software without specific, written prior permission.
 
   The author disclaim all warranties with regard to this
@@ -45,7 +45,7 @@
  *
  *  @{
  */
- 
+
 #ifndef __USBDESCRIPTORS_H__
 #define __USBDESCRIPTORS_H__
 
@@ -58,7 +58,7 @@
 		#include "../../../Common/Common.h"
 		#include "USBMode.h"
 		#include "Events.h"
-		
+
 		#if defined(USB_CAN_BE_DEVICE)
 			#include "../LowLevel/Device.h"
 		#endif
@@ -72,7 +72,7 @@
 		#if !defined(__INCLUDE_FROM_USB_DRIVER)
 			#error Do not include this file directly. Include LUFA/Drivers/USB/USB.h instead.
 		#endif
-		
+
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			/** Indicates that a given descriptor does not exist in the device. This can be used inside descriptors
@@ -98,7 +98,7 @@
 			#else
 				#define USE_INTERNAL_SERIAL           NO_DESCRIPTOR
 			#endif
-			
+
 			/** Macro to calculate the power value for the configuration descriptor, from a given number of milliamperes. */
 			#define USB_CONFIG_POWER_MA(mA)           ((mA) >> 1)
 
@@ -106,7 +106,7 @@
 			 *  Should be used in string descriptor's headers for giving the string descriptor's byte length.
 			 */
 			#define USB_STRING_LEN(str)               (sizeof(USB_Descriptor_Header_t) + ((str) << 1))
-			
+
 			/** Macro to encode a given four digit floating point version number (e.g. 01.23) into Binary Coded
 			 *  Decimal format for descriptor fields requiring BCD encoding, such as the USB version number in the
 			 *  standard device descriptor.
@@ -129,7 +129,7 @@
 			 *  EndpointAddress value to indicate to the host that the endpoint is of the OUT direction (i.e, from
 			 *  host to device).
 			 */
-			#define ENDPOINT_DESCRIPTOR_DIR_OUT       0x00		
+			#define ENDPOINT_DESCRIPTOR_DIR_OUT       0x00
 
 			/** Can be masked with other configuration descriptor attributes for a \ref USB_Descriptor_Configuration_Header_t
 			 *  descriptor's ConfigAttributes value to indicate that the specified configuration can draw its power
@@ -177,7 +177,7 @@
 			 *  \see The USB specification for more details on the possible Endpoint attributes.
 			 */
 			#define ENDPOINT_ATTR_SYNC                (3 << 2)
-			
+
 			/** Can be masked with other endpoint descriptor attributes for a \ref USB_Descriptor_Endpoint_t descriptor's
 			 *  Attributes value to indicate that the specified endpoint is used for data transfers.
 			 *
@@ -212,6 +212,8 @@
 				DTYPE_Other                = 0x07, /**< Indicates that the descriptor is of other type. */
 				DTYPE_InterfacePower       = 0x08, /**< Indicates that the descriptor is an interface power descriptor. */
 				DTYPE_InterfaceAssociation = 0x0B, /**< Indicates that the descriptor is an interface association descriptor. */
+				DTYPE_CSInterface          = 0x24, /**< Indicates that the descriptor is a class specific interface descriptor. */
+				DTYPE_CSEndpoint           = 0x25, /**< Indicates that the descriptor is a class specific endpoint descriptor. */
 			};
 
 		/* Type Defines: */
@@ -220,7 +222,7 @@
              *  Type define for all descriptors' standard header, indicating the descriptor's length and type. This structure
 			 *  uses LUFA-specific element names to make each element's purpose clearer.
 			 *
-			 *  \see \ref USB_StdDescriptor_Header_t for the version of this define with standard element names.
+			 *  \see \ref USB_StdDescriptor_Header_t for the version of this type with standard element names.
 			 */
 			typedef struct
 			{
@@ -229,13 +231,13 @@
 				               *   given by the specific class.
 				               */
 			} USB_Descriptor_Header_t;
-			
+
 			/** \brief Standard USB Descriptor Header (USB-IF naming conventions).
 			 *
 			 *  Type define for all descriptors' standard header, indicating the descriptor's length and type. This structure
 			 *  uses the relevant standard's given element names to ensure compatibility with the standard.
 			 *
-			 *  \see \ref USB_Descriptor_Header_t for the version of this define with non-standard LUFA specific element names.
+			 *  \see \ref USB_Descriptor_Header_t for the version of this type with non-standard LUFA specific element names.
 			 */
 			typedef struct
 			{
@@ -244,13 +246,13 @@
 				                          *   given by the specific class.
 				                          */
 			} USB_StdDescriptor_Header_t;
-			
+
 			/** \brief Standard USB Device Descriptor (LUFA naming conventions).
 			 *
 			 *  Type define for a standard Device Descriptor. This structure uses LUFA-specific element names to make each
 			 *  element's purpose clearer.
 			 *
-			 *  \see \ref USB_StdDescriptor_Device_t for the version of this define with standard element names.
+			 *  \see \ref USB_StdDescriptor_Device_t for the version of this type with standard element names.
 			 */
 			typedef struct
 			{
@@ -260,13 +262,13 @@
 				uint8_t  Class; /**< USB device class. */
 				uint8_t  SubClass; /**< USB device subclass. */
 				uint8_t  Protocol; /**< USB device protocol. */
-				
+
 				uint8_t  Endpoint0Size; /**< Size of the control (address 0) endpoint's bank in bytes. */
-				
+
 				uint16_t VendorID; /**< Vendor ID for the USB product. */
 				uint16_t ProductID; /**< Unique product ID for the USB product. */
 				uint16_t ReleaseNumber; /**< Product release (version) number. */
-				
+
 				uint8_t  ManufacturerStrIndex; /**< String index for the manufacturer's name. The
 				                                *   host will request this string via a separate
 				                                *   control request for the string descriptor.
@@ -299,7 +301,7 @@
 			 *  Type define for a standard Device Descriptor. This structure uses the relevant standard's given element names
 			 *  to ensure compatibility with the standard.
 			 *
-			 *  \see \ref USB_Descriptor_Device_t for the version of this define with non-standard LUFA specific element names.
+			 *  \see \ref USB_Descriptor_Device_t for the version of this type with non-standard LUFA specific element names.
 			 */
 			typedef struct
 			{
@@ -347,12 +349,12 @@
 			 *  Type define for a standard Configuration Descriptor header. This structure uses LUFA-specific element names
 			 *  to make each element's purpose clearer.
 			 *
-			 *  \see \ref USB_StdDescriptor_Configuration_Header_t for the version of this define with standard element names.
+			 *  \see \ref USB_StdDescriptor_Configuration_Header_t for the version of this type with standard element names.
 			 */
 			typedef struct
 			{
 				USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
-			
+
 				uint16_t TotalConfigurationSize; /**< Size of the configuration descriptor header,
 				                                  *   and all sub descriptors inside the configuration.
 				                                  */
@@ -360,23 +362,23 @@
 
 				uint8_t  ConfigurationNumber; /**< Configuration index of the current configuration. */
 				uint8_t  ConfigurationStrIndex; /**< Index of a string descriptor describing the configuration. */
-				
+
 				uint8_t  ConfigAttributes; /**< Configuration attributes, comprised of a mask of zero or
 				                            *   more USB_CONFIG_ATTR_* masks.
 				                            */
-				
+
 				uint8_t  MaxPowerConsumption; /**< Maximum power consumption of the device while in the
 				                               *   current configuration, calculated by the \ref USB_CONFIG_POWER_MA()
 				                               *   macro.
 				                               */
 			} USB_Descriptor_Configuration_Header_t;
-			
+
 			/** \brief Standard USB Configuration Descriptor (USB-IF naming conventions).
 			 *
 			 *  Type define for a standard Configuration Descriptor header. This structure uses the relevant standard's given element names
 			 *  to ensure compatibility with the standard.
 			 *
-			 *  \see \ref USB_Descriptor_Device_t for the version of this define with non-standard LUFA specific element names.
+			 *  \see \ref USB_Descriptor_Device_t for the version of this type with non-standard LUFA specific element names.
 			 */
 			typedef struct
 			{
@@ -404,7 +406,7 @@
 			 *  Type define for a standard Interface Descriptor. This structure uses LUFA-specific element names
 			 *  to make each element's purpose clearer.
 			 *
-			 *  \see \ref USB_StdDescriptor_Interface_t for the version of this define with standard element names.
+			 *  \see \ref USB_StdDescriptor_Interface_t for the version of this type with standard element names.
 			 */
 			typedef struct
 			{
@@ -417,20 +419,20 @@
 				                           *   selected by the host.
 				                           */
 				uint8_t TotalEndpoints; /**< Total number of endpoints in the interface. */
-				
+
 				uint8_t Class; /**< Interface class ID. */
 				uint8_t SubClass; /**< Interface subclass ID. */
 				uint8_t Protocol; /**< Interface protocol ID. */
 
 				uint8_t InterfaceStrIndex; /**< Index of the string descriptor describing the interface. */
 			} USB_Descriptor_Interface_t;
-			
+
 			/** \brief Standard USB Interface Descriptor (USB-IF naming conventions).
 			 *
 			 *  Type define for a standard Interface Descriptor. This structure uses the relevant standard's given element names
 			 *  to ensure compatibility with the standard.
 			 *
-			 *  \see \ref USB_Descriptor_Interface_t for the version of this define with non-standard LUFA specific element names.
+			 *  \see \ref USB_Descriptor_Interface_t for the version of this type with non-standard LUFA specific element names.
 			 */
 			typedef struct
 			{
@@ -459,17 +461,17 @@
 			 *  to make each element's purpose clearer.
 			 *
 			 *  This descriptor has been added as a supplement to the USB2.0 standard, in the ECN located at
-			 *  <a>http://www.usb.org/developers/docs/InterfaceAssociationDescriptor_ecn.pdf</a>. It allows compound
+			 *  <a>http://www.usb.org/developers/docs/InterfaceAssociationDescriptor_ecn.pdf</a>. It allows composite
 			 *  devices with multiple interfaces related to the same function to have the multiple interfaces bound
 			 *  together at the point of enumeration, loading one generic driver for all the interfaces in the single
 			 *  function. Read the ECN for more information.
 			 *
-			 *  \see \ref USB_StdDescriptor_Interface_Association_t for the version of this define with standard element names.
+			 *  \see \ref USB_StdDescriptor_Interface_Association_t for the version of this type with standard element names.
 			 */
 			typedef struct
 			{
 				USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
-				
+
 				uint8_t FirstInterfaceIndex; /**< Index of the first associated interface. */
 				uint8_t TotalInterfaces; /**< Total number of associated interfaces. */
 
@@ -481,19 +483,19 @@
 				                      *   interface association.
 				                      */
 			} USB_Descriptor_Interface_Association_t;
-				
+
 			/** \brief Standard USB Interface Association Descriptor (USB-IF naming conventions).
 			 *
 			 *  Type define for a standard Interface Association Descriptor. This structure uses the relevant standard's given
 			 *  element names to ensure compatibility with the standard.
 			 *
 			 *  This descriptor has been added as a supplement to the USB2.0 standard, in the ECN located at
-			 *  <a>http://www.usb.org/developers/docs/InterfaceAssociationDescriptor_ecn.pdf</a>. It allows compound
+			 *  <a>http://www.usb.org/developers/docs/InterfaceAssociationDescriptor_ecn.pdf</a>. It allows composite
 			 *  devices with multiple interfaces related to the same function to have the multiple interfaces bound
 			 *  together at the point of enumeration, loading one generic driver for all the interfaces in the single
 			 *  function. Read the ECN for more information.
 			 *
-			 *  \see \ref USB_Descriptor_Interface_Association_t for the version of this define with non-standard LUFA specific
+			 *  \see \ref USB_Descriptor_Interface_Association_t for the version of this type with non-standard LUFA specific
 			 *       element names.
 			 */
 			typedef struct
@@ -517,7 +519,7 @@
 			 *  Type define for a standard Endpoint Descriptor. This structure uses LUFA-specific element names
 			 *  to make each element's purpose clearer.
 			 *
-			 *  \see \ref USB_StdDescriptor_Endpoint_t for the version of this define with standard element names.
+			 *  \see \ref USB_StdDescriptor_Endpoint_t for the version of this type with standard element names.
 			 */
 			typedef struct
 			{
@@ -536,13 +538,13 @@
 				                             *   or ISOCHRONOUS type.
 				                             */
 			} USB_Descriptor_Endpoint_t;
-				
+
 			/** \brief Standard USB Endpoint Descriptor (USB-IF naming conventions).
 			 *
 			 *  Type define for a standard Endpoint Descriptor. This structure uses the relevant standard's given
 			 *  element names to ensure compatibility with the standard.
 			 *
-			 *  \see \ref USB_Descriptor_Endpoint_t for the version of this define with non-standard LUFA specific
+			 *  \see \ref USB_Descriptor_Endpoint_t for the version of this type with non-standard LUFA specific
 			 *       element names.
 			 */
 			typedef struct
@@ -551,10 +553,10 @@
 				uint8_t  bDescriptorType; /**< Type of the descriptor, either a value in \ref USB_DescriptorTypes_t or a
 				                           *   value given by the specific class.
 				                           */
-				uint8_t  bEndpointAddress; /**< Logical address of the endpoint within the device for the current 
+				uint8_t  bEndpointAddress; /**< Logical address of the endpoint within the device for the current
 				                            *   configuration, including direction mask.
 				                            */
-				uint8_t  bmAttributes; /**< Endpoint attributes, comprised of a mask of the endpoint type (EP_TYPE_*) 
+				uint8_t  bmAttributes; /**< Endpoint attributes, comprised of a mask of the endpoint type (EP_TYPE_*)
 				                        *   and attributes (ENDPOINT_ATTR_*) masks.
 				                        */
 				uint16_t wMaxPacketSize; /**< Size of the endpoint bank, in bytes. This indicates the maximum packet size
@@ -576,12 +578,12 @@
 			 *
 			 *  This structure uses LUFA-specific element names to make each element's purpose clearer.
 			 *
-			 *  \see \ref USB_StdDescriptor_String_t for the version of this define with standard element names.
+			 *  \see \ref USB_StdDescriptor_String_t for the version of this type with standard element names.
 			 */
 			typedef struct
 			{
 				USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
-				
+
 				wchar_t UnicodeString[]; /**< String data, as unicode characters (alternatively,
 				                          *   string language IDs). If normal ASCII characters are
 				                          *   to be used, they must be added as an array of characters
@@ -606,7 +608,7 @@
 			 *
 			 *  This structure uses the relevant standard's given element names to ensure compatibility with the standard.
 			 *
-			 *  \see \ref USB_Descriptor_String_t for the version of this define with with non-standard LUFA specific
+			 *  \see \ref USB_Descriptor_String_t for the version of this type with with non-standard LUFA specific
 			 *       element names.
 			 */
 			typedef struct
@@ -634,12 +636,13 @@
 			#define VERSION_TENTHS(x)                 (int)(((x) - (int)(x)) * 10)
 			#define VERSION_HUNDREDTHS(x)             (int)((((x) - (int)(x)) * 100) - (10 * VERSION_TENTHS(x)))
 	#endif
-	
+
 	/* Disable C linkage for C++ Compilers: */
 		#if defined(__cplusplus)
 			}
 		#endif
-	
+
 #endif
 
 /** @} */
+

@@ -1,7 +1,7 @@
 /*
              LUFA Library
      Copyright (C) Dean Camera, 2010.
-              
+
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 */
@@ -9,13 +9,13 @@
 /*
   Copyright 2010  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
-  Permission to use, copy, modify, distribute, and sell this 
+  Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
-  without fee, provided that the above copyright notice appear in 
+  without fee, provided that the above copyright notice appear in
   all copies and that both that the copyright notice and this
-  permission notice and warranty disclaimer appear in supporting 
-  documentation, and that the name of the author not be used in 
-  advertising or publicity pertaining to distribution of the 
+  permission notice and warranty disclaimer appear in supporting
+  documentation, and that the name of the author not be used in
+  advertising or publicity pertaining to distribution of the
   software without specific, written prior permission.
 
   The author disclaim all warranties with regard to this
@@ -28,25 +28,34 @@
   this software.
 */
 
-/*
-   This is a stub driver header file, for implementing custom board
-   layout hardware with compatible LUFA board specific drivers. If
-   the library is configured to use the BOARD_USER board mode, this
-   driver file should be completed and copied into the "/Board/" folder
-   inside the application's folder.
+/** \file
+ *  \brief Board specific LED driver header for the Busware CULV3.
+ *
+ *  Board specific LED driver header for the Busware CUL V3 (http://busware.de/tiki-index.php?page=CUL).
+ *
+ *  \note This file should not be included directly. It is automatically included as needed by the LEDs driver
+ *        dispatch header located in LUFA/Drivers/Board/LEDs.h.
+ */
 
-   This stub is for the board-specific component of the LUFA Buttons driver,
-   for the control of physical board-mounted GPIO pushbuttons.
-*/
- 
-#ifndef __BUTTONS_USER_H__
-#define __BUTTONS_USER_H__
+/** \ingroup Group_LEDs
+ *  @defgroup Group_LEDs_CULV3 CULV3
+ *
+ *  Board specific LED driver header for the Busware CUL V3 (http://busware.de/tiki-index.php?page=CUL).
+ *
+ *  \note This file should not be included directly. It is automatically included as needed by the LEDs driver
+ *        dispatch header located in LUFA/Drivers/Board/LEDs.h.
+ *
+ *  @{
+ */
+
+#ifndef __BUTTONS_CULV3_H__
+#define __BUTTONS_CULV3_H__
 
 	/* Includes: */
 		#include <avr/io.h>
 		#include <stdbool.h>
 
-		// TODO: Add any required includes here
+		#include "../../../Common/Common.h"
 
 	/* Enable C linkage for C++ Compilers: */
 		#if defined(__cplusplus)
@@ -57,23 +66,24 @@
 		#if !defined(__INCLUDE_FROM_BUTTONS_H)
 			#error Do not include this file directly. Include LUFA/Drivers/Board/Buttons.h instead.
 		#endif
-		
+
 	/* Public Interface - May be used in end-application: */
 		/* Macros: */
 			/** Button mask for the first button on the board. */
-			#define BUTTONS_BUTTON1          // TODO: Add mask for first board button here
-	
+			#define BUTTONS_BUTTON1      (1 << 2)
+
 		/* Inline Functions: */
 		#if !defined(__DOXYGEN__)
 			static inline void Buttons_Init(void)
 			{
-				// TODO: Initialize the appropriate port pins as an inputs here, with pull-ups
+				DDRE  &= ~BUTTONS_BUTTON1;
+				PORTE |=  BUTTONS_BUTTON1;
 			}
 
 			static inline uint8_t Buttons_GetStatus(void) ATTR_WARN_UNUSED_RESULT;
 			static inline uint8_t Buttons_GetStatus(void)
 			{
-				// TODO: Return current button status here, debounced if required
+				return ((PINE & BUTTONS_BUTTON1) ^ BUTTONS_BUTTON1);
 			}
 		#endif
 
@@ -81,5 +91,8 @@
 		#if defined(__cplusplus)
 			}
 		#endif
-			
+
 #endif
+
+/** @} */
+

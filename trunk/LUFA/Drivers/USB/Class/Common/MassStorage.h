@@ -1,7 +1,7 @@
 /*
              LUFA Library
      Copyright (C) Dean Camera, 2010.
-              
+
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 */
@@ -9,13 +9,13 @@
 /*
   Copyright 2010  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
-  Permission to use, copy, modify, distribute, and sell this 
+  Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
-  without fee, provided that the above copyright notice appear in 
+  without fee, provided that the above copyright notice appear in
   all copies and that both that the copyright notice and this
-  permission notice and warranty disclaimer appear in supporting 
-  documentation, and that the name of the author not be used in 
-  advertising or publicity pertaining to distribution of the 
+  permission notice and warranty disclaimer appear in supporting
+  documentation, and that the name of the author not be used in
+  advertising or publicity pertaining to distribution of the
   software without specific, written prior permission.
 
   The author disclaim all warranties with regard to this
@@ -64,25 +64,19 @@
 		#if !defined(__INCLUDE_FROM_MS_DRIVER)
 			#error Do not include this file directly. Include LUFA/Drivers/Class/MassStorage.h instead.
 		#endif
-		
-	/* Macros: */
-		/** Mass Storage class-specific request to reset the Mass Storage interface, ready for the next command. */
-		#define REQ_MassStorageReset       0xFF
 
-		/** Mass Storage class-specific request to retrieve the total number of Logical Units (drives) in the SCSI device. */
-		#define REQ_GetMaxLUN              0xFE
-		
+	/* Macros: */
 		/** Magic signature for a Command Block Wrapper used in the Mass Storage Bulk-Only transport protocol. */
-		#define MS_CBW_SIGNATURE           0x43425355UL
+		#define MS_CBW_SIGNATURE                               0x43425355UL
 
 		/** Magic signature for a Command Status Wrapper used in the Mass Storage Bulk-Only transport protocol. */
-		#define MS_CSW_SIGNATURE           0x53425355UL
-		
+		#define MS_CSW_SIGNATURE                               0x53425355UL
+
 		/** Mask for a Command Block Wrapper's flags attribute to specify a command with data sent from host-to-device. */
-		#define MS_COMMAND_DIR_DATA_OUT    (0 << 7)
+		#define MS_COMMAND_DIR_DATA_OUT                        (0 << 7)
 
 		/** Mask for a Command Block Wrapper's flags attribute to specify a command with data sent from device-to-host. */
-		#define MS_COMMAND_DIR_DATA_IN     (1 << 7)
+		#define MS_COMMAND_DIR_DATA_IN                         (1 << 7)
 
 		/** SCSI Command Code for an INQUIRY command. */
 		#define SCSI_CMD_INQUIRY                               0x12
@@ -209,8 +203,30 @@
 
 		/** SCSI Additional Sense Qualifier Code to indicate that an operation is currently in progress. */
 		#define SCSI_ASENSEQ_OPERATION_IN_PROGRESS             0x07
-		
-	/* Type defines: */
+
+	/* Enums: */
+		/** Enum for the Mass Storage class specific control requests that can be issued by the USB bus host. */
+		enum MS_ClassRequests_t
+		{
+			MS_REQ_GetMaxLUN        = 0xFE, /**< Mass Storage class-specific request to retrieve the total number of Logical
+			                                 *   Units (drives) in the SCSI device.
+			                                 */
+			MS_REQ_MassStorageReset = 0xFF, /**< Mass Storage class-specific request to reset the Mass Storage interface,
+			                                 *   ready for the next command.
+		                                     */
+		};
+
+		/** Enum for the possible command status wrapper return status codes. */
+		enum MS_CommandStatusCodes_t
+		{
+			MS_SCSI_COMMAND_Pass        = 0, /**< Command completed with no error */
+			MS_SCSI_COMMAND_Fail        = 1, /**< Command failed to complete - host may check the exact error via a
+			                                  *   SCSI REQUEST SENSE command.
+			                                  */
+			MS_SCSI_COMMAND_PhaseError  = 2, /**< Command failed due to being invalid in the current phase. */
+		};
+
+	/* Type Defines: */
 		/** \brief Mass Storage Class Command Block Wrapper.
 		 *
 		 *  Type define for a Command Block Wrapper, used in the Mass Storage Bulk-Only Transport protocol. */
@@ -224,7 +240,7 @@
 			uint8_t  SCSICommandLength; /**< Length of the issued SCSI command within the SCSI command data array. */
 			uint8_t  SCSICommandData[16]; /**< Issued SCSI command in the Command Block. */
 		} MS_CommandBlockWrapper_t;
-		
+
 		/** \brief Mass Storage Class Command Status Wrapper.
 		 *
 		 *  Type define for a Command Status Wrapper, used in the Mass Storage Bulk-Only Transport protocol.
@@ -234,11 +250,11 @@
 			uint32_t Signature; /**< Status block signature, must be CSW_SIGNATURE to indicate a valid Command Status. */
 			uint32_t Tag; /**< Unique command ID value, to associate a command block wrapper with its command status wrapper. */
 			uint32_t DataTransferResidue; /**< Number of bytes of data not processed in the SCSI command. */
-			uint8_t  Status; /**< Status code of the issued command - a value from the MassStorage_CommandStatusCodes_t enum. */
+			uint8_t  Status; /**< Status code of the issued command - a value from the \ref MS_CommandStatusCodes_t enum. */
 		} MS_CommandStatusWrapper_t;
-		
+
 		/** \brief Mass Storage Class SCSI Sense Structure
-		 *  
+		 *
 		 *  Type define for a SCSI Sense structure. Structures of this type are filled out by the
 		 *  device via the \ref MS_Host_RequestSense() function, indicating the current sense data of the
 		 *  device (giving explicit error codes for the last issued command). For details of the
@@ -249,20 +265,20 @@
 			uint8_t       ResponseCode;
 
 			uint8_t       SegmentNumber;
-			
+
 			unsigned char SenseKey            : 4;
 			unsigned char Reserved            : 1;
 			unsigned char ILI                 : 1;
 			unsigned char EOM                 : 1;
 			unsigned char FileMark            : 1;
-			
-			uint8_t      Information[4];
-			uint8_t      AdditionalLength;
-			uint8_t      CmdSpecificInformation[4];
-			uint8_t      AdditionalSenseCode;
-			uint8_t      AdditionalSenseQualifier;
-			uint8_t      FieldReplaceableUnitCode;
-			uint8_t      SenseKeySpecific[3];
+
+			uint8_t       Information[4];
+			uint8_t       AdditionalLength;
+			uint8_t       CmdSpecificInformation[4];
+			uint8_t       AdditionalSenseCode;
+			uint8_t       AdditionalSenseQualifier;
+			uint8_t       FieldReplaceableUnitCode;
+			uint8_t       SenseKeySpecific[3];
 		} SCSI_Request_Sense_Response_t;
 
 		/** \brief Mass Storage Class SCSI Inquiry Structure.
@@ -277,20 +293,20 @@
 		{
 			unsigned char DeviceType          : 5;
 			unsigned char PeripheralQualifier : 3;
-			
+
 			unsigned char Reserved            : 7;
 			unsigned char Removable           : 1;
-			
-			uint8_t      Version;
-			
+
+			uint8_t       Version;
+
 			unsigned char ResponseDataFormat  : 4;
 			unsigned char Reserved2           : 1;
 			unsigned char NormACA             : 1;
 			unsigned char TrmTsk              : 1;
 			unsigned char AERC                : 1;
 
-			uint8_t      AdditionalLength;
-			uint8_t      Reserved3[2];
+			uint8_t       AdditionalLength;
+			uint8_t       Reserved3[2];
 
 			unsigned char SoftReset           : 1;
 			unsigned char CmdQue              : 1;
@@ -300,28 +316,18 @@
 			unsigned char WideBus16Bit        : 1;
 			unsigned char WideBus32Bit        : 1;
 			unsigned char RelAddr             : 1;
-			
-			uint8_t      VendorID[8];
-			uint8_t      ProductID[16];
-			uint8_t      RevisionID[4];
+
+			uint8_t       VendorID[8];
+			uint8_t       ProductID[16];
+			uint8_t       RevisionID[4];
 		} SCSI_Inquiry_Response_t;
 
-	/* Enums: */
-		/** Enum for the possible command status wrapper return status codes. */
-		enum MassStorage_CommandStatusCodes_t
-		{
-			SCSI_Command_Pass = 0, /**< Command completed with no error */
-			SCSI_Command_Fail = 1, /**< Command failed to complete - host may check the exact error via a
-			                        *   SCSI REQUEST SENSE command.
-			                        */
-			SCSI_Phase_Error  = 2  /**< Command failed due to being invalid in the current phase. */
-		};
-	
 	/* Disable C linkage for C++ Compilers: */
 		#if defined(__cplusplus)
 			}
 		#endif
-		
+
 #endif
 
 /** @} */
+

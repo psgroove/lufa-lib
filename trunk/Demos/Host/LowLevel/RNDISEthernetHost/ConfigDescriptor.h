@@ -1,7 +1,7 @@
 /*
              LUFA Library
      Copyright (C) Dean Camera, 2010.
-              
+
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 */
@@ -9,13 +9,13 @@
 /*
   Copyright 2010  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
-  Permission to use, copy, modify, distribute, and sell this 
+  Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
-  without fee, provided that the above copyright notice appear in 
+  without fee, provided that the above copyright notice appear in
   all copies and that both that the copyright notice and this
-  permission notice and warranty disclaimer appear in supporting 
-  documentation, and that the name of the author not be used in 
-  advertising or publicity pertaining to distribution of the 
+  permission notice and warranty disclaimer appear in supporting
+  documentation, and that the name of the author not be used in
+  advertising or publicity pertaining to distribution of the
   software without specific, written prior permission.
 
   The author disclaim all warranties with regard to this
@@ -38,9 +38,9 @@
 
 	/* Includes: */
 		#include <LUFA/Drivers/USB/USB.h>
-		
+
 		#include "RNDISEthernetHost.h"
-		
+
 	/* Macros: */
 		/** Interface Class value for the CDC class. */
 		#define CDC_CONTROL_CLASS              0x02
@@ -50,7 +50,7 @@
 
 		/** Interface Class value for the CDC RNDIS vendor specific protocol. */
 		#define CDC_CONTROL_PROTOCOL           0xFF
-		
+
 		/** Interface Class value for the CDC data class. */
 		#define CDC_DATA_CLASS                 0x0A
 
@@ -59,7 +59,16 @@
 
 		/** Interface Class value for the CDC data protocol. */
 		#define CDC_DATA_PROTOCOL              0x00
-	
+
+		/** Pipe number for the RNDIS data IN pipe. */
+		#define RNDIS_DATA_IN_PIPE             1
+
+		/** Pipe number for the RNDIS data OUT pipe. */
+		#define RNDIS_DATA_OUT_PIPE            2
+
+		/** Pipe number for the RNDIS notification pipe. */
+		#define RNDIS_NOTIFICATION_PIPE        3
+
 	/* Enums: */
 		/** Enum for the possible return codes of the \ref ProcessConfigurationDescriptor() function. */
 		enum RNDISHost_GetConfigDescriptorDataCodes_t
@@ -68,15 +77,15 @@
 			ControlError                    = 1, /**< A control request to the device failed to complete successfully */
 			DescriptorTooLarge              = 2, /**< The device's Configuration Descriptor is too large to process */
 			InvalidConfigDataReturned       = 3, /**< The device returned an invalid Configuration Descriptor */
-			NoRNDISInterfaceFound           = 4, /**< A compatible RNDIS interface was not found in the device's Configuration Descriptor */
-			NoEndpointFound                 = 5, /**< Compatible RNDIS endpoints were not found in the device's RNDIS interface */
+			NoCompatibleInterfaceFound      = 4, /**< A compatible interface with the required endpoints was not found */
 		};
 
 	/* Function Prototypes: */
-		uint8_t ProcessConfigurationDescriptor(void);	
-		
+		uint8_t ProcessConfigurationDescriptor(void);
+
 		uint8_t DComp_NextCDCControlInterface(void* CurrentDescriptor);
 		uint8_t DComp_NextCDCDataInterface(void* CurrentDescriptor);
 		uint8_t DComp_NextCDCDataInterfaceEndpoint(void* CurrentDescriptor);
-		
+
 #endif
+

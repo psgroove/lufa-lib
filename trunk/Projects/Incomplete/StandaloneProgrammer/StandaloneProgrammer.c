@@ -1,7 +1,7 @@
 /*
              LUFA Library
      Copyright (C) Dean Camera, 2010.
-              
+
   dean [at] fourwalledcubicle [dot] com
       www.fourwalledcubicle.com
 */
@@ -9,13 +9,13 @@
 /*
   Copyright 2010  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
-  Permission to use, copy, modify, distribute, and sell this 
+  Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
-  without fee, provided that the above copyright notice appear in 
+  without fee, provided that the above copyright notice appear in
   all copies and that both that the copyright notice and this
-  permission notice and warranty disclaimer appear in supporting 
-  documentation, and that the name of the author not be used in 
-  advertising or publicity pertaining to distribution of the 
+  permission notice and warranty disclaimer appear in supporting
+  documentation, and that the name of the author not be used in
+  advertising or publicity pertaining to distribution of the
   software without specific, written prior permission.
 
   The author disclaim all warranties with regard to this
@@ -67,7 +67,7 @@ void EVENT_USB_UIDChange(void)
 }
 #endif
 
-/** Task to determine if the user is wishes to start the programming sequence, and if so executes the 
+/** Task to determine if the user is wishes to start the programming sequence, and if so executes the
  *  required functions to program the attached target (if any) with the files loaded to the Dataflash.
  */
 void Programmer_Task(void)
@@ -80,11 +80,11 @@ void Programmer_Task(void)
 			HasAttempted = true;
 		else
 			return;
-			
+
 		puts("==== PROGRAMMING CYCLE STARTED ====\r\n");
 
 		#if defined(USB_CAN_BE_BOTH)
-		printf("Using %s Drive...\r\n", (USB_CurrentMode == USB_MODE_HOST) ? "External" : "Internal");
+		printf("Using %s Drive...\r\n", (USB_CurrentMode == USB_MODE_Host) ? "External" : "Internal");
 		#endif
 
 		puts("Reading Configuration File...\r\n");
@@ -113,8 +113,8 @@ int main(void)
 	for (;;)
 	{
 		Programmer_Task();
-		  
-		if (USB_CurrentMode == USB_MODE_HOST)
+
+		if (USB_CurrentMode == USB_MODE_Host)
 		{
 			#if defined(USB_CAN_BE_HOST)
 			DiskHost_USBTask();
@@ -126,7 +126,7 @@ int main(void)
 			DiskDevice_USBTask();
 			#endif
 		}
-		
+
 		USB_USBTask();
 	}
 }
@@ -159,3 +159,4 @@ void SetupHardware(void)
 	DataflashManager_ResetDataflashProtections();
 	#endif
 }
+
