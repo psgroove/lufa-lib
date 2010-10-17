@@ -48,8 +48,8 @@
  *  @{
  */
 
-#ifndef __LEDS_TEENSY_H__
-#define __LEDS_TEENSY_H__
+#ifndef __LEDS_MAXIMUS_H__
+#define __LEDS_MAXIMUS_H__
 
 	/* Includes: */
 		#include <avr/io.h>
