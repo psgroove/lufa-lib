@@ -127,6 +127,10 @@
 		#include "UNO/LEDs.h"
 	#elif (BOARD == BOARD_CULV3)
 		#include "CULV3/LEDs.h"
+        #elif (BOARD == BOARD_MINIMUS)
+                #include "MINIMUS/LEDs.h"
+        #elif (BOARD == BOARD_MAXIMUS)
+                #include "MAXIMUS/LEDs.h"
 	#elif (BOARD == BOARD_USER)
 		#include "Board/LEDs.h"
 	#endif
