@@ -42,6 +42,9 @@
  *   - Busware BUI
  *   - Busware CUL V3
  *   - Arduino Uno
+ *   - TCNISO Blackcat USB JTAG
+ *   - Maximus USB
+ *   - Minimus USB
  *   - Any Other Custom User Boards (with Board Drivers if desired, see \ref Page_WritingBoardDrivers)
  */
 

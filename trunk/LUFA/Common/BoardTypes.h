@@ -122,13 +122,13 @@
 			/** Selects the CUL V3 specific board drivers, including the Button and LEDs drivers. */
 			#define BOARD_CULV3         19
 
-			/** Selects the BLACKCAT specific board drivers, including the Button and LEDs drivers. */
+			/** Selects the Blackcat USB JTAG specific board drivers, including the driver for the board LEDs. */
 			#define BOARD_BLACKCAT      20
 
-			/** Selects the MAXIMUS specific board drivers, including the Button and LED drivers. */
+			/** Selects the Maximus specific board drivers, including the driver for the board LEDs. */
 			#define BOARD_MAXIMUS       21
 
-			/** Selects the MINIMUS specific board drivers, including the Button and LED drivers. */
+			/** Selects the Minimus specific board drivers, including the Button and LEDs drivers. */
 			#define BOARD_MINIMUS       22
 
 			#if !defined(__DOXYGEN__)

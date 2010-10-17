@@ -129,10 +129,10 @@
 		#include "CULV3/LEDs.h"
 	#elif (BOARD == BOARD_BLACKCAT)
 		#include "BLACKCAT/LEDs.h"
-        #elif (BOARD == BOARD_MINIMUS)
-                #include "MINIMUS/LEDs.h"
-        #elif (BOARD == BOARD_MAXIMUS)
-                #include "MAXIMUS/LEDs.h"
+	#elif (BOARD == BOARD_MAXIMUS)
+		#include "MAXIMUS/LEDs.h"
+	#elif (BOARD == BOARD_MINIMUS)
+		#include "MINIMUS/LEDs.h"
 	#elif (BOARD == BOARD_USER)
 		#include "Board/LEDs.h"
 	#endif

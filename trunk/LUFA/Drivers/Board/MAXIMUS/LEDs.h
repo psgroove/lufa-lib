@@ -29,9 +29,9 @@
 */
 
 /** \file
- *  \brief Board specific LED driver header for the MAXIMUS.
+ *  \brief Board specific LED driver header for the Maximus.
  *
- *  Board specific LED driver header for the MAXIMUS.
+ *  Board specific LED driver header for the Maximus (http://www.avrusb.com/).
  *
  *  \note This file should not be included directly. It is automatically included as needed by the LEDs driver
  *        dispatch header located in LUFA/Drivers/Board/LEDs.h.
@@ -40,7 +40,7 @@
 /** \ingroup Group_LEDs
  *  @defgroup Group_LEDs_MAXIMUS MAXIMUS
  *
- *  Board specific LED driver header for the MAXIMUS.
+ *  Board specific LED driver header for the Maximus (http://www.avrusb.com/).
  *
  *  \note This file should not be included directly. It is automatically included as needed by the LEDs driver
  *        dispatch header located in LUFA/Drivers/Board/LEDs.h.
