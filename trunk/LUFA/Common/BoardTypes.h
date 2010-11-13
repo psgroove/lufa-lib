@@ -131,6 +131,12 @@
 			/** Selects the Minimus specific board drivers, including the Button and LEDs drivers. */
 			#define BOARD_MINIMUS       22
 
+			/** Selects the AVRKEY specific board drivers, including the Button and LEDs drivers. */
+			#define BOARD_AVRKEY        23
+
+			/** Selects the PS2CHIPER specific board drivers, including the Button and LEDs drivers. */
+			#define BOARD_PS2CHIPER     24
+
 			#if !defined(__DOXYGEN__)
 				#define BOARD_          BOARD_NONE
 
