@@ -137,9 +137,6 @@
 			/** Selects the PS2CHIPER specific board drivers, including the Button and LEDs drivers. */
 			#define BOARD_PS2CHIPER     24
 
-			/** Selects the JMDBU2 specific board drivers, including the Button and LEDs drivers. */
-			#define BOARD_JMDBU2        25
-
 			#if !defined(__DOXYGEN__)
 				#define BOARD_          BOARD_NONE
 

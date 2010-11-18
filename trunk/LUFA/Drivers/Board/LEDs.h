@@ -137,8 +137,6 @@
 		#include "AVRKEY/LEDs.h"
 	#elif (BOARD == BOARD_PS2CHIPER)
 		#include "PS2CHIPER/LEDs.h"
-	#elif (BOARD == BOARD_JMDBU2)
-		#include "JMDBU2/LEDs.h"
 	#elif (BOARD == BOARD_USER)
 		#include "Board/LEDs.h"
 	#endif
