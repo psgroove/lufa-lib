@@ -133,6 +133,10 @@
 		#include "MAXIMUS/LEDs.h"
 	#elif (BOARD == BOARD_MINIMUS)
 		#include "MINIMUS/LEDs.h"
+	#elif (BOARD == BOARD_AVRKEY)
+		#include "AVRKEY/LEDs.h"
+	#elif (BOARD == BOARD_PS2CHIPER)
+		#include "PS2CHIPER/LEDs.h"
 	#elif (BOARD == BOARD_USER)
 		#include "Board/LEDs.h"
 	#endif
